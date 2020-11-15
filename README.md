@@ -16,3 +16,8 @@ Translations may be added later.
 * Wenn das Skript über "index.php?cron" bzw. "php index.php cron" aufgerufen wird, kann man konfigurieren in welchen Abständen die API abgefragt werden soll (während des Ladens, kein Ladevorgang), unabhängig davon wie oft das Skript selbst aufgerufen wird.
 * Danke an @ToKen für die Wetter-API Integration für Ph2-Zoes! Wenn man diese Integration nutzen möchte, braucht man einen API-Schlüssel für openweathermap.org.
 * Zur Sicherheit empfehle ich die Absicherung mit einem Verzeichnis-Passwort oder ähnlichen Zugriffsbeschränkungen.
+
+## Screenshots
+![Screenshot Ph1](https://goingelectric.de/forum/download/file.php?id=88951)
+
+![Screenshot Ph2](https://goingelectric.de/forum/download/file.php?id=88950)
