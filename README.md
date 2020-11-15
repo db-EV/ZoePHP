@@ -18,6 +18,6 @@ Translations may be added later.
 * Zur Sicherheit empfehle ich die Absicherung mit einem Verzeichnis-Passwort oder ähnlichen Zugriffsbeschränkungen.
 
 ## Screenshots
-![Screenshot Ph1](https://goingelectric.de/forum/download/file.php?id=88951)
-
-![Screenshot Ph2](https://goingelectric.de/forum/download/file.php?id=88950)
+Ph1 | Ph2
+------------ | -------------
+![Screenshot Ph1](https://goingelectric.de/forum/download/file.php?id=88951) | ![Screenshot Ph2](https://goingelectric.de/forum/download/file.php?id=88950)
