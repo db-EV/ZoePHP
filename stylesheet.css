@@ -1,0 +1,22 @@
+@charset "utf-8";
+/* CSS Document */
+
+body {background-color:white;
+	color:black;
+	font-family:Verdana, Geneva, sans-serif;
+	margin:0px;}
+	
+body a {color:slategray;}
+
+#container{width: 100%;}
+
+main {width:100%;}
+
+article {background-color:aliceblue;
+	border: 1px solid gray;
+	border-radius:10px;
+	margin:20px;
+	padding-bottom:10px;
+	padding-left:20px;
+	padding-right:20px;
+	padding-top:10px;}	
