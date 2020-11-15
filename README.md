@@ -1,13 +1,13 @@
 # ZoePHP
-Unofficial PHP client for Renault Zoe
+Unofficial PHP client for Renault Zoe.
 Language for this repository is German right now.
 Translations may be added later.
 
-## Voraussetzungen:
+## Voraussetzungen
 * Webserver mit PHP 5.3 (oder neuer) und cURL
 * Schreibrechte für das Skript im gleichen Ordner
 
-## Benutzungshinweise:
+## Benutzungshinweise
 * Die config.php vor dem ersten Aufruf entsprechend anpassen.
 * Während des ersten Aufrufs legt das Skript die Datei "session" an. In dieser Datei werden u.a. Account ID, Token sowie Fahrdaten zwischen gespeichert.
 * Ist die Datenbank-Funktion aktiviert, wird die Datei database.csv angelegt, in der alle abgerufenen Daten gespeichert werden. Die Datei kann z.B. in Excel importiert werden. Zur regelmässigen Speicherung kann das Skript z.B. mit Cron aufgerufen werden.
