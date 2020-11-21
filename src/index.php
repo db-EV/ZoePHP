@@ -248,7 +248,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   if ($zoeph == 2 && $weather_api_key != '') {
 	$ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang=de&appid='.$weather_api_key);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
+	curl_setopt($ch, CURLOPT_HTTPHEADER);
 	$response = curl_exec($ch);
 	if ($response === FALSE) die(curl_error($ch));
 	$responseData = json_decode($response, TRUE);	
