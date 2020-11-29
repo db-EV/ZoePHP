@@ -9,7 +9,7 @@ Translations may be added later.
 
 ## Benutzungshinweise
 * Die config.php vor dem ersten Aufruf entsprechend anpassen.
-* Während des ersten Aufrufs legt das Skript die Datei "session" an. In dieser Datei werden u.a. Account ID, Token sowie Fahrdaten zwischen gespeichert.
+* Während des ersten Aufrufs legt das Skript die Datei "session" an. In dieser Datei werden u.a. Account ID, Token sowie Fahrdaten zwischen gespeichert. Nach einem Update des Skripts diese Datei bitte löschen.
 * Ist die Datenbank-Funktion aktiviert, wird die Datei database.csv angelegt, in der alle abgerufenen Daten gespeichert werden. Die Datei kann z.B. in Excel importiert werden. Zur regelmässigen Speicherung kann das Skript z.B. mit Cron aufgerufen werden.
 * Konnten keine neuen Daten abgerufen werden, wird ein Hinweis zusammen mit den zuletzt abgerufenen Daten angezeigt.
 * Man kann zwei einfache Mailbenachrichtigungen in Verbindung mit z.B. Cron einrichten: Ist beim Aufruf des Skriptes ein vorher eingestellter Akkustand während eines aktiven Ladevorgangs erreicht und/oder eine Benachrichtigung bei beendetem Ladevorgang erwünscht, wird eine Mail versendet.
@@ -20,4 +20,4 @@ Translations may be added later.
 ## Screenshots
 Ph1 | Ph2
 ------------ | -------------
-![Screenshot Ph1](https://goingelectric.de/forum/download/file.php?id=88951) | ![Screenshot Ph2](https://goingelectric.de/forum/download/file.php?id=88950)
+![Screenshot Ph1](https://www.goingelectric.de/forum/download/file.php?id=99102) | ![Screenshot Ph2](https://www.goingelectric.de/forum/download/file.php?id=99103)
