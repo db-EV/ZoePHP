@@ -1,6 +1,8 @@
 <?php
 session_cache_limiter('nocache');
 require 'config.php';
+if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
+else require 'lng/DE.php';
 
 //Parameter auswerten
 if (isset($_GET['cron']) || $argv[1] == 'cron') {
@@ -54,7 +56,7 @@ $timestamp_now = date_format($timestamp_now, 'YmdHi');
  * 23: Wetter für Ph2 (openweathermap API)
  * 24: Ladeplanerstatus
  */
-$session = file_get_contents(__DIR__.'/session');
+$session = file_get_contents('session');
 if ($session !== FALSE) $session = explode('|', $session);
 else $session = array('0000', '', '', '', '202001010000', 'N', 'N', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '80','','','');
 
@@ -286,7 +288,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   
   //Abfrage Wetterdaten openweathermap API (nur Ph2)
   if ($zoeph == 2 && $weather_api_key != '') {
-	$ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang=de&appid='.$weather_api_key);
+	$ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$weather_api_lng.'&appid='.$weather_api_key);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($ch, CURLOPT_HTTPHEADER);
 	$response = curl_exec($ch);
@@ -313,12 +315,12 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 
   //Daten in Datenbank schreiben, falls das konfiguriert ist
   if ($update_sucess === TRUE && $save_in_db === 'Y') {
-    if (!file_exists(__DIR__.'/database.csv')) {
-	  if ($zoeph == 1) file_put_contents(__DIR__.'/database.csv', 'Datum;Zeit;Kilometerstand;Aussentemperatur;Akkutemperatur;Akkustand;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Ladeplaner'."\n");
-      else file_put_contents(__DIR__.'/database.csv', 'Datum;Zeit;Kilometerstand;Akkustand;Akkukapazitaet;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Latitude;Longitude;PositionDatum;PositionZeit;Aussentemperatur;Wetter;Ladeplaner'."\n");
+    if (!file_exists('database.csv')) {
+	  if ($zoeph == 1) file_put_contents('database.csv', 'Datum;Zeit;Kilometerstand;Aussentemperatur;Akkutemperatur;Akkustand;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Ladeplaner'."\n");
+      else file_put_contents('database.csv', 'Datum;Zeit;Kilometerstand;Akkustand;Akkukapazitaet;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Latitude;Longitude;PositionDatum;PositionZeit;Aussentemperatur;Wetter;Ladeplaner'."\n");
     }
-    if ($zoeph == 1) file_put_contents(__DIR__.'/database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
-	else file_put_contents(__DIR__.'/database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
+    if ($zoeph == 1) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
+	else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
   }
 }
 curl_close($ch);
@@ -335,49 +337,49 @@ if ($cmd_cron === TRUE) {
   $requesturi = strtok($_SERVER['REQUEST_URI'], '?');
   echo '<HTML>'."\n".'<HEAD>'."\n".'<LINK REL="stylesheet" HREF="stylesheet.css">'."\n".'<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">'."\n".'<TITLE>'.$zoename.'</TITLE>'."\n".'</HEAD>'."\n".'<BODY>'."\n".'<DIV ID="container">'."\n".'<MAIN>'."\n";
   if ($mail_bl === 'Y') echo '<FORM ACTION="'.$requesturi.'" METHOD="post" AUTOCOMPLETE="off">'."\n";
-  echo '<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH><TD><SMALL><A HREF="'.$requesturi.'">Aktualisieren</A></SMALL></TD></TR>'."\n";
-  if ($cmd_acnow === TRUE) echo '<TR><TD COLSPAN="2">Vorklimatisierung wurde angefordert.</TD><TD>'."\n";
-  if ($cmd_chargenow === TRUE) echo '<TR><TD COLSPAN="2">Sofortiges Laden wurde angefordert.</TD><TD>'."\n";
-  if ($cmd_cmon === TRUE) echo '<TR><TD COLSPAN="2">Aktivierung des Ladeplaners wurde angefordert.</TD><TD>'."\n";
-  else if ($cmd_cmoff === TRUE) echo '<TR><TD COLSPAN="2">Deaktivierung des Ladeplaners wurde angefordert.</TD><TD>'."\n";
-  if ($update_sucess === FALSE) echo '<TR><TD COLSPAN="2">Es konnten keine neuen Daten abgerufen werden.</TD><TD>'."\n";
-    echo '<TR><TD>Kilometerstand:</TD><TD>'.$session[7].' km</TD></TR>'."\n".'<TR><TD>Angeschlossen:</TD><TD>';
+  echo '<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH><TD><SMALL><A HREF="'.$requesturi.'">'.$lng[1].'</A></SMALL></TD></TR>'."\n";
+  if ($cmd_acnow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[2].'</TD><TD>'."\n";
+  if ($cmd_chargenow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[3].'</TD><TD>'."\n";
+  if ($cmd_cmon === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[4].'</TD><TD>'."\n";
+  else if ($cmd_cmoff === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[5].'</TD><TD>'."\n";
+  if ($update_sucess === FALSE) echo '<TR><TD COLSPAN="2">'.$lng[6].'</TD><TD>'."\n";
+    echo '<TR><TD>'.$lng[7].':</TD><TD>'.$session[7].' km</TD></TR>'."\n".'<TR><TD>'.$lng[8].':</TD><TD>';
     if ($session[11] == 0){
-      echo 'Nein';
+      echo $lng[9];
     } else {
-      echo 'Ja';
+      echo $lng[10];
     }
-    echo '</TD></TR>'."\n".'<TR><TD>Wird geladen:</TD><TD>';
+    echo '</TD></TR>'."\n".'<TR><TD>'.$lng[11].':</TD><TD>';
     if ($session[10] == 1){
 	  if ($session[15] != ''){
         $s = date_create_from_format('d.m.YH:i', $session[8].$session[9]);
         date_add($s, date_interval_create_from_date_string($session[15].' minutes'));
         $s = date_format($s, 'H:i');
-      } else $s = 'Zeitnah';
-      echo 'Ja</TD></TR>'."\n".'<TR><TD>Fertig:</TD><TD>'.$s;
-	  if ($zoeph == 1) echo '</TD></TR>'."\n".'<TR><TD>Effekt:</TD><TD>'.$session[16].' kW';
+      } else $s = $lng[12];
+      echo $lng[10].'</TD></TR>'."\n".'<TR><TD>'.$lng[13].':</TD><TD>'.$s;
+	  if ($zoeph == 1) echo '</TD></TR>'."\n".'<TR><TD>'.$lng[14].':</TD><TD>'.$session[16].' kW';
     } else {
-      echo 'Nein';
+      echo $lng[9];
     }
-	echo '</TD></TR>'."\n".'<TR><TD>Ladeplaner:</TD><TD>';
-	if (substr($session[24], 0, 6) === 'always') echo 'Aus';
-	else echo 'Ein';
-    echo 'geschaltet</TD></TR>'."\n".'</TD></TR>'."\n".'<TR><TD>Akkustand:</TD><TD>'.$session[12].' %</TD></TR>'."\n";
-	if ($mail_bl === 'Y') echo '<TR><TD>Mail bei Akkustand:</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
+	echo '</TD></TR>'."\n".'<TR><TD>'.$lng[15].':</TD><TD>';
+	if (substr($session[24], 0, 6) === 'always') echo $lng[16];
+	else echo $lng[17];
+    echo '</TD></TR>'."\n".'</TD></TR>'."\n".'<TR><TD>'.$lng[18].':</TD><TD>'.$session[12].' %</TD></TR>'."\n";
+	if ($mail_bl === 'Y') echo '<TR><TD>'.$lng[19].':</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
     if ($zoeph == 2) {
-      echo '<TR><TD>Verf&uuml;gbare Energie:</TD><TD>'.$session[13].' kWh</TD></TR>'."\n";
+      echo '<TR><TD>'.$lng[20].':</TD><TD>'.$session[13].' kWh</TD></TR>'."\n";
     }
-    echo '<TR><TD>Reichweite:</TD><TD>'.$session[14].' km</TD></TR>'."\n";
+    echo '<TR><TD>'.$lng[21].':</TD><TD>'.$session[14].' km</TD></TR>'."\n";
     if ($zoeph == 1) {
-      echo '<TR><TD>Akkutemperatur:</TD><TD>'.$session[13].' &deg;C</TD></TR>'."\n".'<TR><TD>Au&szlig;entemperatur:</TD><TD>'.$session[17].' &deg;C</TD></TR>'."\n";
+      echo '<TR><TD>'.$lng[22].':</TD><TD>'.$session[13].' &deg;C</TD></TR>'."\n".'<TR><TD>'.$lng[23].':</TD><TD>'.$session[17].' &deg;C</TD></TR>'."\n";
     } else {
-	  if ($weather_api_key != '') echo '<TR><TD>Au&szlig;entemperatur:</TD><TD>'.$session[22].' &deg;C ('.htmlentities($session[23]).')</TD></TR>'."\n";
+	  if ($weather_api_key != '') echo '<TR><TD>'.$lng[23].':</TD><TD>'.$session[22].' &deg;C ('.htmlentities($session[23]).')</TD></TR>'."\n";
 	}
-    echo '<TR><TD>Statusupdate:</TD><TD>'.$session[8].' '.$session[9].'</TD></TR>'."\n";
+    echo '<TR><TD>'.$lng[24].':</TD><TD>'.$session[8].' '.$session[9].'</TD></TR>'."\n";
     if ($zoeph == 2) {
-      echo '<TR><TD>Fahrzeugposition:</TD><TD><A HREF="https://www.google.com/maps/place/'.$session[17].','.$session[18].'" TARGET="_blank">Google Maps</A></TD></TR>'."\n".'<TR><TD>Positionsupdate:</TD><TD>'.$session[19].' '.$session[20].'</TD></TR>'."\n";
+      echo '<TR><TD>'.$lng[25].':</TD><TD><A HREF="https://www.google.com/maps/place/'.$session[17].','.$session[18].'" TARGET="_blank">Google Maps</A></TD></TR>'."\n".'<TR><TD>'.$lng[26].':</TD><TD>'.$session[19].' '.$session[20].'</TD></TR>'."\n";
     }
-  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">Vorklimatisierung starten</A></TD></TR>'."\n".'<TR><TD COLSPAN="2">Ladeplaner: <A HREF="'.$requesturi.'?cmon">ein</A> | <A HREF="'.$requesturi.'?cmoff">aus</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">Laden starten</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
+  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng[27].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2">'.$lng[15].': <A HREF="'.$requesturi.'?cmon">'.$lng[28].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng[29].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng[30].'</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 }
@@ -387,6 +389,6 @@ if (($md5 != $session[3] && $update_sucess === TRUE) || $cmd_cron === TRUE || is
   $session[3] = $md5;
   $session[4] = $timestamp_now;
   $session = implode('|', $session);
-  file_put_contents(__DIR__.'/session', $session);
+  file_put_contents('session', $session);
 }
 ?>
