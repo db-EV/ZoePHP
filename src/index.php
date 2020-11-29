@@ -360,7 +360,7 @@ if ($cmd_cron === TRUE) {
       echo 'Nein';
     }
 	echo '</TD></TR>'."\n".'<TR><TD>Ladeplaner:</TD><TD>';
-	if ($session[24] === 'always_charging') echo 'Aus';
+	if (substr($session[24], 0, 6) === 'always_charging') echo 'Aus';
 	else echo 'Ein';
     echo 'geschaltet</TD></TR>'."\n".'</TD></TR>'."\n".'<TR><TD>Akkustand:</TD><TD>'.$session[12].' %</TD></TR>'."\n";
 	if ($mail_bl === 'Y') echo '<TR><TD>Mail bei Akkustand:</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
