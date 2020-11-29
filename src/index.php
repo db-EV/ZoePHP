@@ -14,6 +14,12 @@ if (isset($_GET['acnow']) || $argv[1] == 'acnow') $cmd_acnow = TRUE;
 else $cmd_acnow = FALSE;
 if (isset($_GET['chargenow']) || $argv[1] == 'chargenow') $cmd_chargenow = TRUE;
 else $cmd_chargenow = FALSE;
+if (isset($_GET['cmon']) || $argv[1] == 'cmon') $cmd_cmon = TRUE;
+else {
+  $cmd_cmon = FALSE;
+  if (isset($_GET['cmoff']) || $argv[1] == 'cmoff') $cmd_cmoff = TRUE;
+  else $cmd_cmoff = FALSE;
+}
 
 $date_today = date_create('now');
 $date_today = date_format($date_today, 'md');
@@ -46,10 +52,11 @@ $timestamp_now = date_format($timestamp_now, 'YmdHi');
  * 21: Einstellung Akkustand für Mailversand
  * 22: Aussentemperatur für Ph2 (openweathermap API)
  * 23: Wetter für Ph2 (openweathermap API)
+ * 24: Ladeplanerstatus
  */
 $session = file_get_contents(__DIR__.'/session');
 if ($session !== FALSE) $session = explode('|', $session);
-else $session = array('0000', '', '', '', '202001010000', 'N', 'N', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '80','','');
+else $session = array('0000', '', '', '', '202001010000', 'N', 'N', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '80','','','');
 
 //Einstellung Akkustand für Mailversand auslesen
 if (is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
@@ -155,6 +162,24 @@ if ($cmd_chargenow === TRUE) {
   if ($response === FALSE) die(curl_error($ch));
 }
 
+//Ladeplaner aktivieren/deaktivieren bei Parameter "cmon" bzw. "cmoff"
+if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
+  $postData = array(
+    'Content-type: application/vnd.api+json',
+    'apikey: '.$kamereon_api,
+    'x-gigya-id_token: '.$session[1]
+  );
+  if ($cmd_cmon === TRUE) $jsonData = '{"data":{"type":"ChargeMode","attributes":{"action":"schedule_mode"}}}';
+  else $jsonData = '{"data":{"type":"ChargeMode","attributes":{"action":"always_charging"}}}';
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charge-mode?country='.$country);
+  curl_setopt($ch, CURLOPT_POST, TRUE);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+  $response = curl_exec($ch);
+  if ($response === FALSE) die(curl_error($ch));
+}
+
 //Abfrage Akku-und Ladestatus von Renault
 $postData = array(
   'apikey: '.$kamereon_api,
@@ -203,7 +228,22 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   $s = $responseData['data']['attributes']['totalMileage'];
   if (empty($s)) $update_sucess = FALSE;
   else $session[7] = $s;
-  
+
+  //Abfrage Ladeplanerstatus
+  $postData = array(
+    'apikey: '.$kamereon_api,
+    'x-gigya-id_token: '.$session[1]
+  );
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/charge-mode?country='.$country);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
+  $response = curl_exec($ch);
+  if ($response === FALSE) die(curl_error($ch));
+  $responseData = json_decode($response, TRUE);
+  $s = $responseData['data']['attributes']['chargeMode'];
+  if (empty($s)) $update_sucess = FALSE;
+  else $session[24] = $s;
+
   //Abfrage Aussentemperatur (nur Ph1)
   if ($zoeph == 1) {
     $postData = array(
@@ -274,11 +314,11 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   //Daten in Datenbank schreiben, falls das konfiguriert ist
   if ($update_sucess === TRUE && $save_in_db === 'Y') {
     if (!file_exists(__DIR__.'/database.csv')) {
-	  if ($zoeph == 1) file_put_contents(__DIR__.'/database.csv', 'Datum;Zeit;Kilometerstand;Aussentemperatur;Akkutemperatur;Akkustand;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit'."\n");
-      else file_put_contents(__DIR__.'/database.csv', 'Datum;Zeit;Kilometerstand;Akkustand;Akkukapazitaet;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Latitude;Longitude;PositionDatum;PositionZeit;Aussentemperatur;Wetter'."\n");
+	  if ($zoeph == 1) file_put_contents(__DIR__.'/database.csv', 'Datum;Zeit;Kilometerstand;Aussentemperatur;Akkutemperatur;Akkustand;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Ladeplaner'."\n");
+      else file_put_contents(__DIR__.'/database.csv', 'Datum;Zeit;Kilometerstand;Akkustand;Akkukapazitaet;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Latitude;Longitude;PositionDatum;PositionZeit;Aussentemperatur;Wetter;Ladeplaner'."\n");
     }
-    if ($zoeph == 1) file_put_contents(__DIR__.'/database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15]."\n", FILE_APPEND);
-	else file_put_contents(__DIR__.'/database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23]."\n", FILE_APPEND);
+    if ($zoeph == 1) file_put_contents(__DIR__.'/database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
+	else file_put_contents(__DIR__.'/database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
   }
 }
 curl_close($ch);
@@ -287,6 +327,8 @@ curl_close($ch);
 if ($cmd_cron === TRUE) {
   if ($cmd_acnow === TRUE) echo 'AC NOW'."\n";
   if ($cmd_chargenow === TRUE) echo 'CHARGE NOW'."\n";
+  if ($cmd_cmon === TRUE) echo 'CM ON'."\n";
+  else if ($cmd_cmoff === TRUE) echo 'CM OFF'."\n";
   if ($update_sucess === TRUE) echo 'OK';
   else echo 'NO DATA';
 } else {
@@ -296,6 +338,8 @@ if ($cmd_cron === TRUE) {
   echo '<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH><TD><SMALL><A HREF="'.$requesturi.'">Aktualisieren</A></SMALL></TD></TR>'."\n";
   if ($cmd_acnow === TRUE) echo '<TR><TD COLSPAN="2">Vorklimatisierung wurde angefordert.</TD><TD>'."\n";
   if ($cmd_chargenow === TRUE) echo '<TR><TD COLSPAN="2">Sofortiges Laden wurde angefordert.</TD><TD>'."\n";
+  if ($cmd_cmon === TRUE) echo '<TR><TD COLSPAN="2">Aktivierung des Ladeplaners wurde angefordert.</TD><TD>'."\n";
+  else if ($cmd_cmoff === TRUE) echo '<TR><TD COLSPAN="2">Deaktivierung des Ladeplaners wurde angefordert.</TD><TD>'."\n";
   if ($update_sucess === FALSE) echo '<TR><TD COLSPAN="2">Es konnten keine neuen Daten abgerufen werden.</TD><TD>'."\n";
     echo '<TR><TD>Kilometerstand:</TD><TD>'.$session[7].' km</TD></TR>'."\n".'<TR><TD>Angeschlossen:</TD><TD>';
     if ($session[11] == 0){
@@ -315,7 +359,10 @@ if ($cmd_cron === TRUE) {
     } else {
       echo 'Nein';
     }
-    echo '</TD></TR>'."\n".'<TR><TD>Akkustand:</TD><TD>'.$session[12].' %</TD></TR>'."\n";
+	echo '</TD></TR>'."\n".'<TR><TD>Ladeplaner:</TD><TD>';
+	if ($session[24] === 'always_charging') echo 'Aus';
+	else echo 'Ein';
+    echo 'geschaltet</TD></TR>'."\n".'</TD></TR>'."\n".'<TR><TD>Akkustand:</TD><TD>'.$session[12].' %</TD></TR>'."\n";
 	if ($mail_bl === 'Y') echo '<TR><TD>Mail bei Akkustand:</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
     if ($zoeph == 2) {
       echo '<TR><TD>Verf&uuml;gbare Energie:</TD><TD>'.$session[13].' kWh</TD></TR>'."\n";
@@ -330,7 +377,7 @@ if ($cmd_cron === TRUE) {
     if ($zoeph == 2) {
       echo '<TR><TD>Fahrzeugposition:</TD><TD><A HREF="https://www.google.com/maps/place/'.$session[17].','.$session[18].'" TARGET="_blank">Google Maps</A></TD></TR>'."\n".'<TR><TD>Positionsupdate:</TD><TD>'.$session[19].' '.$session[20].'</TD></TR>'."\n";
     }
-  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">Vorklimatisierung starten</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">Laden starten</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
+  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">Vorklimatisierung starten</A></TD></TR>'."\n".'<TR><TD COLSPAN="2">Ladeplaner: <A HREF="'.$requesturi.'?cmon">ein</A> | <A HREF="'.$requesturi.'?cmoff">aus</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">Laden starten</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 }
