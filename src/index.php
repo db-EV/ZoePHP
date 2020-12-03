@@ -316,8 +316,8 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   //Daten in Datenbank schreiben, falls das konfiguriert ist
   if ($update_sucess === TRUE && $save_in_db === 'Y') {
     if (!file_exists('database.csv')) {
-	  if ($zoeph == 1) file_put_contents('database.csv', 'Datum;Zeit;Kilometerstand;Aussentemperatur;Akkutemperatur;Akkustand;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Ladeplaner'."\n");
-      else file_put_contents('database.csv', 'Datum;Zeit;Kilometerstand;Akkustand;Akkukapazitaet;Reichweite;Kabelstatus;Ladestatus;Ladeeffekt;Ladezeit;Latitude;Longitude;PositionDatum;PositionZeit;Aussentemperatur;Wetter;Ladeplaner'."\n");
+	  if ($zoeph == 1) file_put_contents('database.csv', 'Date;Time;Mileage;Temperature outside;Temperature battery;Battery level;Range;Cable status;Charging status;Charging speed;Remaining charging time;Charging schedule'."\n");
+      else file_put_contents('database.csv', 'Date;Time;Mileage;Battery level;Battery capacity;Range;Cable status;Charging status;Charging speed;Remaining charging time;GPS Latitude;GPS Longitude;GPS date;GPS time;Temperature outside;Weather description;Charging schedule'."\n");
     }
     if ($zoeph == 1) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
 	else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
