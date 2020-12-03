@@ -1,7 +1,7 @@
 # ZoePHP
 Unofficial PHP client for Renault Zoe.
-Language for this repository is German right now.
-Translations may be added later.
+Language for this repository is mostly German right now.
+Translations will be added later.
 
 ## Voraussetzungen
 * Webserver mit PHP 5.3 (oder neuer) und cURL
