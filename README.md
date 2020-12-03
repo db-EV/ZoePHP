@@ -15,6 +15,7 @@ Translations may be added later.
 * Man kann zwei einfache Mailbenachrichtigungen in Verbindung mit z.B. Cron einrichten: Ist beim Aufruf des Skriptes ein vorher eingestellter Akkustand während eines aktiven Ladevorgangs erreicht und/oder eine Benachrichtigung bei beendetem Ladevorgang erwünscht, wird eine Mail versendet.
 * Wenn das Skript über "index.php?cron" bzw. "php index.php cron" aufgerufen wird, kann man konfigurieren in welchen Abständen die API abgefragt werden soll (während des Ladens, kein Ladevorgang), unabhängig davon wie oft das Skript selbst aufgerufen wird.
 * Danke an @ToKen für die Wetter-API Integration für Ph2-Zoes! Wenn man diese Integration nutzen möchte, braucht man einen API-Schlüssel für openweathermap.org.
+* Vielen Dank auch an [Muscat's OxBlog](https://muscatoxblog.blogspot.com/2019/07/delving-into-renaults-new-api.html) für das Entschlüsseln der API.
 * Zur Sicherheit empfehle ich die Absicherung mit einem Verzeichnis-Passwort oder ähnlichen Zugriffsbeschränkungen.
 
 ## Screenshots
