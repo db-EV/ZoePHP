@@ -243,7 +243,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   if ($response === FALSE) die(curl_error($ch));
   $responseData = json_decode($response, TRUE);
   $s = $responseData['data']['attributes']['chargeMode'];
-  if (empty($s)) $update_sucess = FALSE;
+  if (empty($s)) $session[24] = 'n/a';
   else $session[24] = $s;
 
   //Abfrage Aussentemperatur (nur Ph1)
