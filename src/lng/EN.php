@@ -1,0 +1,33 @@
+<?php
+$weather_api_lng = 'en';
+$lng[1] = 'Update';
+$lng[2] = 'Preconditioning requested.';
+$lng[3] = 'Instant charging requested.';
+$lng[4] = 'Activation of the charging schedule requested.';
+$lng[5] = 'Deactivation of the charging schedule requested.';
+$lng[6] = 'No new data couldn\'t be received.';
+$lng[7] = 'Mileage';
+$lng[8] = 'Connected';
+$lng[9] = 'No';
+$lng[10] = 'Yes';
+$lng[11] = 'Charging';
+$lng[12] = 'Soon';
+$lng[13] = 'Ready';
+$lng[14] = 'Effect';
+$lng[15] = 'Charging schedule';
+$lng[16] = 'Inactive';
+$lng[17] = 'Active';
+$lng[18] = 'Battery level';
+$lng[19] = 'Mail at battery level';
+$lng[20] = 'Battery capacity';
+$lng[21] = 'Range';
+$lng[22] = 'Battery temperature';
+$lng[23] = 'Outside temperature';
+$lng[24] = 'Status update';
+$lng[25] = 'Car position';
+$lng[26] = 'Position update';
+$lng[27] = 'Start preconditioning';
+$lng[28] = 'on';
+$lng[29] = 'off';
+$lng[30] = 'Start charging';
+?>

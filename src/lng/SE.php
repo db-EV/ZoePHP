@@ -1,0 +1,33 @@
+<?php
+$weather_api_lng = 'sv';
+$lng[1] = 'Uppdatera';
+$lng[2] = 'F&ouml;klimatisierung har beg&auml;rts.';
+$lng[3] = 'Omg&aring;ende laddning har beg&auml;rts.';
+$lng[4] = 'Aktivering av laddningsschemat har beg&auml;rts.';
+$lng[5] = 'Deaktivering av laddningsschemat har beg&auml;rts.';
+$lng[6] = 'Nya data kunde inte h&auml;mtas.';
+$lng[7] = 'Miltal';
+$lng[8] = 'Ansluten';
+$lng[9] = 'Nej';
+$lng[10] = 'Ja';
+$lng[11] = 'Laddar';
+$lng[12] = 'Snart';
+$lng[13] = 'Klart';
+$lng[14] = 'Effekt';
+$lng[15] = 'Laddningsschema';
+$lng[16] = 'Inaktiv';
+$lng[17] = 'Aktiv';
+$lng[18] = 'Batteriniv&aring;';
+$lng[19] = 'Mejl vid batteriniv&aring;';
+$lng[20] = 'Tillg&auml;nglig kapacitet';
+$lng[21] = 'R&auml;ckvidd';
+$lng[22] = 'Batteritemperatur';
+$lng[23] = 'Utetemperatur';
+$lng[24] = 'Statusuppdatering';
+$lng[25] = 'Fordonsposition';
+$lng[26] = 'Positionsuppdatering';
+$lng[27] = 'Starta f&ouml;rklimatisering';
+$lng[28] = 'p&aring;';
+$lng[29] = 'av';
+$lng[30] = 'Starta laddning';
+?>
