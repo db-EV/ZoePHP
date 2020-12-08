@@ -2,7 +2,7 @@
 session_cache_limiter('nocache');
 require 'config.php';
 if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
-else require 'lng/DE.php';
+else require 'lng/EN.php';
 
 //Parameter auswerten
 if (isset($_GET['cron']) || $argv[1] == 'cron') {
@@ -315,8 +315,8 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   //Daten in Datenbank schreiben, falls das konfiguriert ist
   if ($update_sucess === TRUE && $save_in_db === 'Y') {
     if (!file_exists('database.csv')) {
-	  if ($zoeph == 1) file_put_contents('database.csv', 'Date;Time;Mileage;Temperature outside;Temperature battery;Battery level;Range;Cable status;Charging status;Charging speed;Remaining charging time;Charging schedule'."\n");
-      else file_put_contents('database.csv', 'Date;Time;Mileage;Battery level;Battery capacity;Range;Cable status;Charging status;Charging speed;Remaining charging time;GPS Latitude;GPS Longitude;GPS date;GPS time;Temperature outside;Weather description;Charging schedule'."\n");
+	  if ($zoeph == 1) file_put_contents('database.csv', 'Date;Time;Mileage;Outside temperature;Battery temperature;Battery level;Range;Cable status;Charging status;Charging speed;Remaining charging time;Charging schedule'."\n");
+      else file_put_contents('database.csv', 'Date;Time;Mileage;Battery level;Battery capacity;Range;Cable status;Charging status;Charging speed;Remaining charging time;GPS Latitude;GPS Longitude;GPS date;GPS time;Outside temperature;Weather condition;Charging schedule'."\n");
     }
     if ($zoeph == 1) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
 	else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
@@ -361,7 +361,7 @@ if ($cmd_cron === TRUE) {
       echo $lng[9];
     }
 	echo '</TD></TR>'."\n".'<TR><TD>'.$lng[15].':</TD><TD>';
-	if (substr($session[24], 0, 6) === 'always') echo $lng[16];
+	if (substr($session[24], 0, 6) === 'always' || $session[24] === 'n/a') echo $lng[16];
 	else echo $lng[17];
     echo '</TD></TR>'."\n".'</TD></TR>'."\n".'<TR><TD>'.$lng[18].':</TD><TD>'.$session[12].' %</TD></TR>'."\n";
 	if ($mail_bl === 'Y') echo '<TR><TD>'.$lng[19].':</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
