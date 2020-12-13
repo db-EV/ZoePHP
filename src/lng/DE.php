@@ -30,4 +30,12 @@ $lng[27] = 'Vorklimatisierung starten';
 $lng[28] = 'ein';
 $lng[29] = 'aus';
 $lng[30] = 'Laden starten';
+$lng[31] = 'wenige';
+$lng[32] = 'Vorgegebener Akkustand erreicht.';
+$lng[33] = 'Akkustand';
+$lng[34] = 'Verbleibende Ladezeit';
+$lng[35] = 'Minuten';
+$lng[36] = 'Reichweite';
+$lng[37] = 'Statusupdate';
+$lng[38] = 'Ladevorgang beendet.';
 ?>
