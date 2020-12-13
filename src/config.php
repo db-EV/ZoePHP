@@ -1,40 +1,40 @@
 <?php
-//Name für den Renault Zoe
+//Name for your Renault Zoe (shows as heading)
 $zoename = 'Renault Zoe';
 
-//Zoe-Modell (1 für Ph1 und 2 für Ph2)
+//Your Renault Zoe model: 1 for Ph1 or 2 for Ph2
 $zoeph = 1;
 
-//Login-Daten My Renault
-$username = 'meine@emailadres.se';
-$password = 'MeinPasswort';
+//Login to My Renault
+$username = 'your@mailadress.com';
+$password = 'My_password';
 
-//VIN des Renault Zoe
+//VIN of your Renault Zoe
 $vin = 'VF1...';
 
-//Datenspeicherung (Y für ja und N für nein)
+//Save data in database.csv: Y for yes or N for no
 $save_in_db = 'N';
 
-//Mailversand, wenn Akkustand erreicht (Y für ja und N für nein)
+//Send mail if battery level is reached: Y for yes or N for no
 $mail_bl = 'N';
 
-//Mailversand, wenn Ladevorgang beendet (Y für ja und N für nein)
+//Send mail if charging is finished: Y for yes or N for no
 $mail_csf = 'N';
 
-//Nutzung von Cron: Aufruf per index.php?cron oder php ../index.php cron
-//Minimaler Zeitabstand in Minuten zwischen zwei Aufrufen, wenn nicht geladen wird
+//Using cron: Request index.php?cron or php ../index.php cron
+//Minimum time interval in minutes between two requests if the car isn't charging
 $cron_ncs = 60;
-//Minimaler Zeitabstand in Minuten zwischen zwei Aufrufen während eines Ladevorgangs
+//Minimum time interval in minutes between two requests if the car charging
 $cron_acs = 15;
 
-//Wetter API Schlüssel (openweathermap.org) für Wetterabfrage bei Ph2
-//Infos zur Registrierung: https://openweathermap.org/appid
+//openweathermap.org API key for requesting weather data (only Ph2)
+//More information: https://openweathermap.org/appid
 $weather_api_key = '';
 
-//Land
+//Registration country of your Renault Zoe
 $country = 'DE';
 
-// Gigya API Schlüssel (länderabhängig)
+// Gigya API key (depending on your country)
 
 //Deutschland
 $gigya_api = '3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668';
@@ -42,9 +42,12 @@ $gigya_api = '3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668
 //Österreich
 //$gigya_api = '3__B4KghyeUb0GlpU62ZXKrjSfb7CPzwBS368wioftJUL5qXE0Z_sSy0rX69klXuHy';
 
-//Schweden
+//Sverige
 //$gigya_api = '3_EN5Hcnwanu9_Dqot1v1Aky1YelT5QqG4TxveO0EgKFWZYu03WkeB9FKuKKIWUXIS';
 
-//Kamereon API Schlüssel
+//United Kingdom
+//$gigya_api = '3_e8d4g4SE_Fo8ahyHwwP7ohLGZ79HKNN2T8NjQqoNnk6Epj6ilyYwKdHUyCw3wuxz';
+
+//Kamereon API key (do not change)
 $kamereon_api = 'oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB';
 ?>
