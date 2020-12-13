@@ -30,4 +30,12 @@ $lng[27] = 'Start preconditioning';
 $lng[28] = 'on';
 $lng[29] = 'off';
 $lng[30] = 'Start charging';
+$lng[31] = 'some';
+$lng[32] = 'Specified battery level reached.';
+$lng[33] = 'Battery level';
+$lng[34] = 'Remaining charging time';
+$lng[35] = 'minutes';
+$lng[36] = 'Range';
+$lng[37] = 'Status update';
+$lng[38] = 'Charging finished.';
 ?>
