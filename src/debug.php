@@ -3,11 +3,11 @@ session_cache_limiter('nocache');
 require 'config.php';
 header('Content-Type: text/plain; charset=utf-8');
 
-//Login-Daten abrufen
-$session = file_get_contents(__DIR__.'/session');
+//Request cached login
+$session = file_get_contents('session');
 $session = explode('|', $session);
 
-//Abfrage Akku-und Ladestatus von Renault
+//Request battery and charging status from Renault
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
@@ -18,7 +18,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 echo 'battery-status: '.$response."\n\n";
 
-//Abfrage Kilometerstand
+//Request mileage
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
@@ -30,7 +30,7 @@ $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
 echo 'cockpit: '.$response."\n\n";
 
-//Abfrage Ladeplanerstatus
+//Request chargemode
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
@@ -41,7 +41,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 echo 'charge-mode: '.$response."\n\n";
 
-//Abfrage Aussentemperatur
+//Request outside temperature
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
@@ -53,7 +53,7 @@ $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
 echo 'hvac-status: '.$response."\n\n";
 
-//Abfrage Position
+//Request GPS position
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
