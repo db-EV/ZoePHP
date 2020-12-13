@@ -4,7 +4,7 @@ require 'config.php';
 if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
 else require 'lng/EN.php';
 
-//Parameter auswerten
+//Evaluate parameters
 if (isset($_GET['cron']) || $argv[1] == 'cron') {
   header('Content-Type: text/plain; charset=utf-8');
   $cmd_cron = TRUE;
@@ -28,45 +28,45 @@ $date_today = date_format($date_today, 'md');
 $timestamp_now = date_create('now');
 $timestamp_now = date_format($timestamp_now, 'YmdHi');
 
-/**Zwischengespeicherte Daten abrufen
- * Session-Array:
- * 0: Datum Abruf Gigya JWT Token (md)
+/**Retrieve cached data
+ * Session array:
+ * 0: Date Gigya JWT Token request (md)
  * 1: Gigya JWT Token
- * 2: Renault Account-ID
- * 3: MD5-Hash des letzten Datenabrufs
- * 4: Zeitstempel des letzten Datenabrufs (YmdHi)
- * 5: Mail versendet (Y/N)
- * 6: Aktiver Ladevorgang (Y/N)
- * 7: Kilometerstand
- * 8: Status-Datum
- * 9: Status-Zeit
- * 10: Ladestatus
- * 11: Kabelstatus
- * 12: Akkustand
- * 13: Akkutemperatur (Ph1) / Akkukapazität (Ph2)
- * 14: Reichweite
- * 15: Ladezeit
- * 16: Ladeeffekt
- * 17: Aussentemperatur (Ph1) / GPS-Latitude (Ph2)
+ * 2: Renault account id
+ * 3: MD5 hash of the last data retrieval
+ * 4: Timestamp of the last data retrieval (YmdHi)
+ * 5: Mail sent (Y/N)
+ * 6: Car is charging (Y/N)
+ * 7: Mileage
+ * 8: Date status update
+ * 9: Time status update
+ * 10: Charging status
+ * 11: Cable status
+ * 12: Battery level
+ * 13: Battery temperature (Ph1) / battery capacity (Ph2)
+ * 14: Range in km
+ * 15: Charging time
+ * 16: Charging effect
+ * 17: Outside temperature (Ph1) / GPS-Latitude (Ph2)
  * 18: GPS-Longitude (Ph2)
- * 19: GPS-Datum (Ph2, d.m.Y)
- * 20: GPS-Zeit (Ph2, H:i)
- * 21: Einstellung Akkustand für Mailversand
- * 22: Aussentemperatur für Ph2 (openweathermap API)
- * 23: Wetter für Ph2 (openweathermap API)
- * 24: Ladeplanerstatus
+ * 19: GPS date (Ph2, d.m.Y)
+ * 20: GPS time (Ph2, H:i)
+ * 21: Setting battery level for mail function
+ * 22: Outside temperature (Ph2, openweathermap API)
+ * 23: Weather condition (Ph2, openweathermap API)
+ * 24: Chargemode
  */
 $session = file_get_contents('session');
 if ($session !== FALSE) $session = explode('|', $session);
 else $session = array('0000', '', '', '', '202001010000', 'N', 'N', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '80','','','');
 
-//Einstellung Akkustand für Mailversand auslesen
+//Retrieve setting battery level for mail function
 if (is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
   if ($_POST['bl'] > $session[21]) $session[5] = 'N';
   $session[21] = $_POST['bl'];
 }
 
-//Cron-Zeitintervall prüfen
+//Checking cron time interval
 if ($cmd_cron == TRUE) {
   $s = date_create_from_format('YmdHi', $session[4]);
   if ($session[6] == 'Y') date_add($s, date_interval_create_from_date_string($cron_acs.' minutes'));
@@ -75,7 +75,7 @@ if ($cmd_cron == TRUE) {
   if ($timestamp_now < $s) exit('INTERVAL NOT REACHED');
 }
 
-//Neues Token anfordern, wenn Datumänderung seit letztem Zugriff
+//Retrieve new Gigya token if the date has changed since last request
 if (empty($session[1]) || $session[0] !== $date_today) {
   //Login Gigya
   $postData = array(
@@ -95,7 +95,7 @@ if (empty($session[1]) || $session[0] !== $date_today) {
   $personId = $responseData['data']['personId'];
   $oauth_token = $responseData['sessionInfo']['cookieValue'];
 
-  //Abfrage Gigya JWT Token
+  //Request Gigya JWT token
   $postData = array(
     'login_token' => $oauth_token,
     'ApiKey' => $gigya_api,
@@ -114,9 +114,9 @@ if (empty($session[1]) || $session[0] !== $date_today) {
   $session[0] = $date_today;
 }
 
-//Account ID abrufen, falls nicht zwischengespeichert
+//Request Renault account id if not cached
 if (empty($session[2])) {
-  //Abfrage Kamereon Account ID
+  //Request Kamereon account id
   $postData = array(
     'apikey: '.$kamereon_api,
     'x-gigya-id_token: '.$session[1],
@@ -130,7 +130,7 @@ if (empty($session[2])) {
   $session[2] = $responseData['accounts'][0]['accountId'];
 }
 
-//Klimaanlage starten bei Parameter "acnow"
+//Evaluate parameter "acnow" for preconditioning
 if ($cmd_acnow === TRUE) {
   $postData = array(
     'Content-type: application/vnd.api+json',
@@ -147,7 +147,7 @@ if ($cmd_acnow === TRUE) {
   if ($response === FALSE) die(curl_error($ch));
 }
 
-//Sofortiges Laden starten bei Parameter "chargenow"
+//Evaluate parameter "chargenow" for instant charging
 if ($cmd_chargenow === TRUE) {
   $postData = array(
     'Content-type: application/vnd.api+json',
@@ -164,7 +164,7 @@ if ($cmd_chargenow === TRUE) {
   if ($response === FALSE) die(curl_error($ch));
 }
 
-//Ladeplaner aktivieren/deaktivieren bei Parameter "cmon" bzw. "cmoff"
+//Evaluate parameters "cmon" respectively "cmoff" for setting the chargemode
 if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
   $postData = array(
     'Content-type: application/vnd.api+json',
@@ -182,7 +182,7 @@ if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
   if ($response === FALSE) die(curl_error($ch));
 }
 
-//Abfrage Akku-und Ladestatus von Renault
+//Request battery and charging status from Renault
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
@@ -214,9 +214,9 @@ else {
   else $session[16] = $s;
 }
 
-//Abfrage weiterer Daten von Renault, wenn eine Änderung seit des letzten Abrufs zu erwarten ist
+//Request more data from Renault if changed data since last request are expected
 if ($md5 != $session[3] && $update_sucess === TRUE) {
-  //Abfrage Kilometerstand
+  //Request mileage
   $postData = array(
     'apikey: '.$kamereon_api,
     'x-gigya-id_token: '.$session[1]
@@ -231,7 +231,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   if (empty($s)) $update_sucess = FALSE;
   else $session[7] = $s;
 
-  //Abfrage Ladeplanerstatus
+  //Request chargemode
   $postData = array(
     'apikey: '.$kamereon_api,
     'x-gigya-id_token: '.$session[1]
@@ -246,7 +246,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   if (empty($s)) $session[24] = 'n/a';
   else $session[24] = $s;
 
-  //Abfrage Aussentemperatur (nur Ph1)
+  //Request outside temperature (only Ph1)
   if ($zoeph == 1) {
     $postData = array(
       'apikey: '.$kamereon_api,
@@ -263,7 +263,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	else $session[17] = $s;
   }
 
-  //Abfrage Position (nur Ph2)
+  //Request GPS position (only Ph2)
   if ($zoeph == 2) {
     $postData = array(
       'apikey: '.$kamereon_api,
@@ -286,7 +286,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	}
   }
   
-  //Abfrage Wetterdaten openweathermap API (nur Ph2)
+  //Request weather data from openweathermap (only Ph2)
   if ($zoeph == 2 && $weather_api_key != '') {
 	$ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$weather_api_lng.'&appid='.$weather_api_key);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
@@ -297,22 +297,22 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	$session[23] = $responseData['current']['weather']['0']['description'];
   }
 
-  //Mailversand, falls das konfiguriert ist
+  //Sent mail if configured
   if ($mail_bl === 'Y') {
     if ($session[12] >= $session[21] && $session[10] == 1 && $session[5] != 'Y') {
 	  if ($session[15] != '') $s = $session[15];
-	  else $s = 'wenige';
-	  mail($username, $zoename, 'Vorgegebener Akkustand erreicht.'."\n".'Akkustand: '.$session[12].' %'."\n".'Verbleibende Ladezeit: '.$s.' Minuten'."\n".'Reichweite: '.$session[14].' km'."\n".'Statusupdate: '.$session[8].' '.$session[9]);
+	  else $s = $lng[31];
+	  mail($username, $zoename, $lng[32]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[34].': '.$s.' '.$lng[35]."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
 	  $session[5] = 'Y';
     } else if ($session[5] == 'Y' && $session[10] != 1) $session[5] = 'N';
   }
   if ($mail_csf === 'Y') {
-    if ($session[6] == 'Y' && $session[10] != 1) mail($username, $zoename, 'Ladevorgang beendet.'."\n".'Akkustand: '.$session[12].' %'."\n".'Reichweite: '.$session[14].' km'."\n".'Statusupdate: '.$session[8].' '.$session[9]);
+    if ($session[6] == 'Y' && $session[10] != 1) mail($username, $zoename, $lng[38]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
     if ($session[10] == 1) $session[6] = 'Y';
     else $session[6] = 'N';
   }
 
-  //Daten in Datenbank schreiben, falls das konfiguriert ist
+  //Save data in database if configured
   if ($update_sucess === TRUE && $save_in_db === 'Y') {
     if (!file_exists('database.csv')) {
 	  if ($zoeph == 1) file_put_contents('database.csv', 'Date;Time;Mileage;Outside temperature;Battery temperature;Battery level;Range;Cable status;Charging status;Charging speed;Remaining charging time;Charging schedule'."\n");
@@ -324,7 +324,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 }
 curl_close($ch);
 
-//Ausgabe
+//Output
 if ($cmd_cron === TRUE) {
   if ($cmd_acnow === TRUE) echo 'AC NOW'."\n";
   if ($cmd_chargenow === TRUE) echo 'CHARGE NOW'."\n";
@@ -383,7 +383,7 @@ if ($cmd_cron === TRUE) {
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 }
 
-//Daten zwischenspeichern
+//Cache data
 if (($md5 != $session[3] && $update_sucess === TRUE) || $cmd_cron === TRUE || is_numeric($_POST['bl'])) {
   $session[3] = $md5;
   $session[4] = $timestamp_now;
