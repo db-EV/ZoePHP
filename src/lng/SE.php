@@ -30,4 +30,12 @@ $lng[27] = 'Starta f&ouml;rklimatisering';
 $lng[28] = 'p&aring;';
 $lng[29] = 'av';
 $lng[30] = 'Starta laddning';
+$lng[31] = 'några';
+$lng[32] = 'Angiven batterinivå uppnådd.';
+$lng[33] = 'Batterinivå';
+$lng[34] = 'Återstående laddningstid';
+$lng[35] = 'minuter';
+$lng[36] = 'Räckvidd';
+$lng[37] = 'Statusuppdatering';
+$lng[38] = 'Laddning avslutad.';
 ?>
