@@ -21,4 +21,4 @@ Translations will be added later.
 ## Screenshots
 Ph1 | Ph2
 ------------ | -------------
-![Screenshot Ph1](https://www.goingelectric.de/forum/download/file.php?id=99102) | ![Screenshot Ph2](https://www.goingelectric.de/forum/download/file.php?id=99103)
+![Screenshot Ph1](screenshot_ph1.png) | ![Screenshot Ph2](screenshot_ph2.png)
