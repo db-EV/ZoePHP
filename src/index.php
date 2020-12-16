@@ -259,8 +259,8 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
     if ($response === FALSE) die(curl_error($ch));
     $responseData = json_decode($response, TRUE);
     $s = $responseData['data']['attributes']['externalTemperature'];
-	if (empty($s)) $update_sucess = FALSE;
-	else $session[17] = $s;
+    if (empty($s) && $s != '0.0') $update_sucess = FALSE;
+    else $session[17] = $s;
   }
 
   //Request GPS position (only Ph2)
