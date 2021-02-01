@@ -49,5 +49,5 @@ $gigya_api = '3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668
 //$gigya_api = '3_e8d4g4SE_Fo8ahyHwwP7ohLGZ79HKNN2T8NjQqoNnk6Epj6ilyYwKdHUyCw3wuxz';
 
 //Kamereon API key (do not change)
-$kamereon_api = 'oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB';
+$kamereon_api = 'Ae9FDWugRxZQAGm3Sxgk7uJn6Q4CGEA2';
 ?>
