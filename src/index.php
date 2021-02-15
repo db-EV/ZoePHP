@@ -1,6 +1,7 @@
 <?php
 session_cache_limiter('nocache');
 require 'config.php';
+require 'config-private.php';
 if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
 else require 'lng/EN.php';
 
