@@ -9,7 +9,7 @@ Unofficial PHP client for the Renault Zoe.
 ## Usage instructions
 * Add a file "config-private.php" to the folder that contains index.php
 * If you work from github, make sure "config-private.php" is in .gitignore (should be already)
-* Add the below block to config-private.php and edit accordingly 
+* Add the below block to config-private.php and edit accordingly before you run the script for the first time
 ```
 //Name for your Renault Zoe (shows as heading)
 $zoename = 'Renault Zoe';
@@ -47,7 +47,7 @@ $weather_api_key = '';
 $country = 'DE';
 
 ```
-* Adjust the settings in config.php before you run the script for the first time.
+* Adjust the settings in config.php if required.
 * When calling the script for the first time it creates a "session" file. This file is used for caching your account id, token, car data and so on. Please delete this file after every update of the script.
 * When you activate the database function the script will create "database.csv" as database file for all data records. You can import this file into Microsoft Excel, for example. For saving your car's data regulary you can run the script periodically, for example with cron.
 * If it wasn't possible to receive new data from Renault you will see a notice together with cached data.
