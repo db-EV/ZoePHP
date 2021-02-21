@@ -1,8 +1,11 @@
 <?php
 session_cache_limiter('nocache');
-require 'config.php';
+require 'api-keys.php';
 require 'config-private.php';
 header('Content-Type: text/plain; charset=utf-8');
+if (empty(${$country})) $gigya_api = $GB;
+else $gigya_api = ${$country};
+echo 'giga-api-key: '.$gigya_api."\n\n";
 
 //Request cached login
 $session = file_get_contents('session');
