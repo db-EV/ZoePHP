@@ -38,7 +38,7 @@ $timestamp_now = date_format($timestamp_now, 'YmdHi');
  * 2: Renault account id
  * 3: MD5 hash of the last data retrieval
  * 4: Timestamp of the last data retrieval (YmdHi)
- * 5: Mail sent (Y/N)
+ * 5: Action done when reaching battery level (Y/N)
  * 6: Car is charging (Y/N)
  * 7: Mileage
  * 8: Date status update
@@ -309,18 +309,39 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	$session[23] = $responseData['current']['weather']['0']['description'];
   }
 
-  //Sent mail if configured
-  if ($mail_bl === 'Y') {
+  //Send mail, execute command or activate schedule mode if configured
+  if ($mail_bl === 'Y' || $cmon_bl === 'Y' || !empty($exec_bl)) {
     if ($session[12] >= $session[21] && $session[10] == 1 && $session[5] != 'Y') {
-	  if ($session[15] != '') $s = $session[15];
-	  else $s = $lng[31];
-	  mail($username, $zoename, $lng[32]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[34].': '.$s.' '.$lng[35]."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
+	  if ($mail_bl === 'Y') {
+	    if ($session[15] != '') $s = $session[15];
+	    else $s = $lng[31];
+	    mail($username, $zoename, $lng[32]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[34].': '.$s.' '.$lng[35]."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
+	  }
+	  if ($cmon_bl === 'Y') {
+	    $postData = array(
+	      'Content-type: application/vnd.api+json',
+	      'apikey: '.$kamereon_api,
+	      'x-gigya-id_token: '.$session[1]
+	    );
+	    $jsonData = '{"data":{"type":"ChargeMode","attributes":{"action":"schedule_mode"}}}';
+	    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charge-mode?country='.$country);
+	    curl_setopt($ch, CURLOPT_POST, TRUE);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	    curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
+	    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+	    $response = curl_exec($ch);
+	    if ($response === FALSE) die(curl_error($ch));
+	  }
+	  if (!empty($exec_bl)) shell_exec($exec_bl);
 	  $session[5] = 'Y';
     } else if ($session[5] == 'Y' && $session[10] != 1) $session[5] = 'N';
   }
-  if ($mail_csf === 'Y') {
-    if ($session[6] == 'Y' && $session[10] != 1) mail($username, $zoename, $lng[38]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
-    if ($session[10] == 1) $session[6] = 'Y';
+  if ($mail_csf === 'Y' || !empty($exec_csf)) {
+    if ($session[6] == 'Y' && $session[10] != 1) {
+	  if ($mail_csf === 'Y') mail($username, $zoename, $lng[38]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
+      if (!empty($exec_csf)) shell_exec($exec_csf);
+	}
+	if ($session[10] == 1) $session[6] = 'Y';
     else $session[6] = 'N';
   }
 
