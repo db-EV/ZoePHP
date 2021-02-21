@@ -78,9 +78,17 @@ if ($cmd_cron == TRUE) {
   if ($timestamp_now < $s) exit('INTERVAL NOT REACHED');
 }
 
+//Max one API request per minute
+$s = date_create_from_format('YmdHi', $session[4]);
+date_add($s, date_interval_create_from_date_string('1 minutes'));
+$s = date_format($s, 'YmdHi');
+if ($timestamp_now < $s) $update_ok = FALSE;
+else $update_ok = TRUE;
+
 //Retrieve new Gigya token if the date has changed since last request
 if (empty($session[1]) || $session[0] !== $date_today) {
   //Login Gigya
+  $update_ok = TRUE;
   $postData = array(
     'ApiKey' => $gigya_api,
     'loginId' => $username,
@@ -185,36 +193,38 @@ if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
 }
 
 //Request battery and charging status from Renault
-$postData = array(
-  'apikey: '.$kamereon_api,
-  'x-gigya-id_token: '.$session[1]
-);
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/battery-status?country='.$country);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-$response = curl_exec($ch);
-if ($response === FALSE) die(curl_error($ch));
-$md5 = md5($response);
-$responseData = json_decode($response, TRUE);
-$s = date_create_from_format(DATE_ISO8601, $responseData['data']['attributes']['timestamp'], timezone_open('UTC'));
-if (empty($s)) $update_sucess = FALSE;
-else {
-  $update_sucess = TRUE;
-  $weather_api_dt = date_format($s, 'U');
-  $s = date_timezone_set($s, timezone_open('Europe/Berlin'));
-  $session[8] = date_format($s, 'd.m.Y');
-  $session[9] = date_format($s, 'H:i');
-  $session[10] = $responseData['data']['attributes']['chargingStatus'];
-  $session[11] = $responseData['data']['attributes']['plugStatus'];
-  $session[12] = $responseData['data']['attributes']['batteryLevel'];
-  if (($zoeph == 1)) $session[13] = $responseData['data']['attributes']['batteryTemperature'];
-  else $session[13] = $responseData['data']['attributes']['batteryAvailableEnergy'];
-  $session[14] = $responseData['data']['attributes']['batteryAutonomy'];
-  $session[15] = $responseData['data']['attributes']['chargingRemainingTime'];
-  $s = $responseData['data']['attributes']['chargingInstantaneousPower'];
-  if ($zoeph == 1) $session[16] = $s/1000;
-  else $session[16] = $s;
-}
+if ($update_ok === TRUE) {
+  $postData = array(
+    'apikey: '.$kamereon_api,
+    'x-gigya-id_token: '.$session[1]
+  );
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/battery-status?country='.$country);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
+  $response = curl_exec($ch);
+  if ($response === FALSE) die(curl_error($ch));
+  $md5 = md5($response);
+  $responseData = json_decode($response, TRUE);
+  $s = date_create_from_format(DATE_ISO8601, $responseData['data']['attributes']['timestamp'], timezone_open('UTC'));
+  if (empty($s)) $update_sucess = FALSE;
+  else {
+    $update_sucess = TRUE;
+    $weather_api_dt = date_format($s, 'U');
+    $s = date_timezone_set($s, timezone_open('Europe/Berlin'));
+    $session[8] = date_format($s, 'd.m.Y');
+    $session[9] = date_format($s, 'H:i');
+    $session[10] = $responseData['data']['attributes']['chargingStatus'];
+    $session[11] = $responseData['data']['attributes']['plugStatus'];
+    $session[12] = $responseData['data']['attributes']['batteryLevel'];
+    if (($zoeph == 1)) $session[13] = $responseData['data']['attributes']['batteryTemperature'];
+    else $session[13] = $responseData['data']['attributes']['batteryAvailableEnergy'];
+    $session[14] = $responseData['data']['attributes']['batteryAutonomy'];
+    $session[15] = $responseData['data']['attributes']['chargingRemainingTime'];
+    $s = $responseData['data']['attributes']['chargingInstantaneousPower'];
+    if ($zoeph == 1) $session[16] = $s/1000;
+    else $session[16] = $s;
+  }
+} else $update_sucess = FALSE;
 
 //Request more data from Renault if changed data since last request are expected
 if ($md5 != $session[3] && $update_sucess === TRUE) {
@@ -343,7 +353,7 @@ if ($cmd_cron === TRUE) {
   if ($cmd_chargenow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[3].'</TD><TD>'."\n";
   if ($cmd_cmon === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[4].'</TD><TD>'."\n";
   else if ($cmd_cmoff === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[5].'</TD><TD>'."\n";
-  if ($update_sucess === FALSE) echo '<TR><TD COLSPAN="2">'.$lng[6].'</TD><TD>'."\n";
+  if ($update_sucess === FALSE && $update_ok === TRUE) echo '<TR><TD COLSPAN="2">'.$lng[6].'</TD><TD>'."\n";
     echo '<TR><TD>'.$lng[7].':</TD><TD>'.$session[7].' km</TD></TR>'."\n".'<TR><TD>'.$lng[8].':</TD><TD>';
     if ($session[11] == 0){
       echo $lng[9];
@@ -386,7 +396,7 @@ if ($cmd_cron === TRUE) {
 }
 
 //Cache data
-if (($md5 != $session[3] && $update_sucess === TRUE) || $cmd_cron === TRUE || is_numeric($_POST['bl'])) {
+if ($update_ok === TRUE || $cmd_cron == TRUE || is_numeric($_POST['bl'])) {
   $session[3] = $md5;
   $session[4] = $timestamp_now;
   $session = implode('|', $session);
