@@ -1,3 +1,4 @@
+<?php
 //Name for your Renault Zoe (shows as heading)
 $zoename = 'Renault Zoe';
 
@@ -31,4 +32,9 @@ $cron_acs = 15;
 $weather_api_key = '';
 
 //Registration country of your Renault Zoe
+//Deutschland: DE
+//Österreich: AT
+//Sverige: SE
+//United Kingdom: GB
 $country = 'DE';
+?>
