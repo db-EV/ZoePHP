@@ -1,7 +1,7 @@
 <?php
 session_cache_limiter('nocache');
 require 'api-keys.php';
-require 'config-private.php';
+require 'config.php';
 header('Content-Type: text/plain; charset=utf-8');
 if (empty(${$country})) $gigya_api = $GB;
 else $gigya_api = ${$country};
