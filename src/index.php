@@ -1,9 +1,11 @@
 <?php
 session_cache_limiter('nocache');
-require 'config.php';
+require 'api-keys.php';
 require 'config-private.php';
 if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
 else require 'lng/EN.php';
+if (empty(${$country})) $gigya_api = $GB;
+else $gigya_api = ${$country};
 
 //Evaluate parameters
 if (isset($_GET['cron']) || $argv[1] == 'cron') {
@@ -111,7 +113,6 @@ if (empty($session[1]) || $session[0] !== $date_today) {
   if ($response === FALSE) die(curl_error($ch));
   $responseData = json_decode($response, TRUE);
   $session[1] = $responseData['id_token'];
-  
   $session[0] = $date_today;
 }
 
