@@ -15,11 +15,19 @@ $vin = 'VF1...';
 //Save data in database.csv: Y for yes or N for no
 $save_in_db = 'N';
 
-//Send mail if battery level is reached: Y for yes or N for no
+//If battery level is reached:
+//Send mail: Y for yes or N for no
 $mail_bl = 'N';
+//Execute command, e.g. 'bash hello.sh'
+$exec_bl = '';
+//Activate charging schedule to stop charging: Y for yes or N for no
+$cmon_bl = 'N';
 
-//Send mail if charging is finished: Y for yes or N for no
+//If charging is finished:
+//Send mail: Y for yes or N for no
 $mail_csf = 'N';
+//Execute command, e.g. 'bash hello.sh'
+$exec_csf = '';
 
 //Using cron: Request index.php?cron or php ../index.php cron
 //Minimum time interval in minutes between two requests if the car isn't charging
