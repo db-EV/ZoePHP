@@ -7,8 +7,8 @@ Unofficial PHP client for the Renault Zoe.
 * Write permissions for the script in its own folder
 
 ## Usage instructions
-* If you work from GitHub, download "config-private.php" and make sure "config-private.php" is in .gitignore (should be already)
-* Adjust the settings in config-private.php before you run the script for the first time.
+* If you work from GitHub, download config.php and make sure it is in .gitignore (should be already).
+* Adjust the settings in config.php before you run the script for the first time.
 * When calling the script for the first time it creates a "session" file. This file is used for caching your account id, token, car data and so on. Please delete this file after every update of the script.
 * When you activate the database function the script will create "database.csv" as database file for all data records. You can import this file into Microsoft Excel, for example. For saving your car's data regulary you can run the script periodically, for example with cron.
 * If it wasn't possible to receive new data from Renault you will see a notice together with cached data.
