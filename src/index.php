@@ -1,7 +1,7 @@
 <?php
 session_cache_limiter('nocache');
 require 'api-keys.php';
-require 'config-private.php';
+require 'config.php';
 if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
 else require 'lng/EN.php';
 if (empty(${$country})) $gigya_api = $GB;
