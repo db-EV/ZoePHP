@@ -7,7 +7,7 @@ $AT = '3__B4KghyeUb0GlpU62ZXKrjSfb7CPzwBS368wioftJUL5qXE0Z_sSy0rX69klXuHy';
 //Sverige
 $SE = '3_EN5Hcnwanu9_Dqot1v1Aky1YelT5QqG4TxveO0EgKFWZYu03WkeB9FKuKKIWUXIS';
 //United Kingdom
-$EN = '3_e8d4g4SE_Fo8ahyHwwP7ohLGZ79HKNN2T8NjQqoNnk6Epj6ilyYwKdHUyCw3wuxz';
+$GB = '3_e8d4g4SE_Fo8ahyHwwP7ohLGZ79HKNN2T8NjQqoNnk6Epj6ilyYwKdHUyCw3wuxz';
 
 //Kamereon API key
 $kamereon_api = 'Ae9FDWugRxZQAGm3Sxgk7uJn6Q4CGEA2';
