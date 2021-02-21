@@ -1,6 +1,7 @@
 <?php
 session_cache_limiter('nocache');
 require 'config.php';
+require 'config-private.php';
 header('Content-Type: text/plain; charset=utf-8');
 
 //Request cached login
