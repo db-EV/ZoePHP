@@ -355,7 +355,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
   }
 }
-curl_close($ch);
+if ($update_ok === TRUE) curl_close($ch);
 
 //Output
 if ($cmd_cron === TRUE) {
