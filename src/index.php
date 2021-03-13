@@ -312,11 +312,10 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   //Send mail, execute command or activate schedule mode if configured
   if ($mail_bl === 'Y' || $cmon_bl === 'Y' || !empty($exec_bl)) {
     if ($session[12] >= $session[21] && $session[10] == 1 && $session[5] != 'Y') {
-	  if ($mail_bl === 'Y') {
-	    if ($session[15] != '') $s = $session[15];
-	    else $s = $lng[31];
-	    mail($username, $zoename, $lng[32]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[34].': '.$s.' '.$lng[35]."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
-	  }
+      if ($session[15] != '') $s = $session[15];
+	  else $s = $lng[31];
+      $sendmessage = $lng[32]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[34].': '.$s.' '.$lng[35]."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9];
+	  if ($mail_bl === 'Y') mail($username, $zoename, $sendmessage);
 	  if ($cmon_bl === 'Y') {
 	    $postData = array(
 	      'Content-type: application/vnd.api+json',
@@ -332,14 +331,15 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	    $response = curl_exec($ch);
 	    if ($response === FALSE) die(curl_error($ch));
 	  }
-	  if (!empty($exec_bl)) shell_exec($exec_bl);
+      if (!empty($exec_bl)) shell_exec($exec_bl.' "'.$sendmessage.'"');
 	  $session[5] = 'Y';
     } else if ($session[5] == 'Y' && $session[10] != 1) $session[5] = 'N';
   }
   if ($mail_csf === 'Y' || !empty($exec_csf)) {
+    $sendmessage = $lng[38]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9];
     if ($session[6] == 'Y' && $session[10] != 1) {
-	  if ($mail_csf === 'Y') mail($username, $zoename, $lng[38]."\n".$lng[33].': '.$session[12].' %'."\n".$lng[36].': '.$session[14].' km'."\n".$lng[37].': '.$session[8].' '.$session[9]);
-      if (!empty($exec_csf)) shell_exec($exec_csf);
+	  if ($mail_csf === 'Y') mail($username, $zoename, $sendmessage);
+      if (!empty($exec_csf)) shell_exec($exec_bl.' "'.$sendmessage.'"');
 	}
 	if ($session[10] == 1) $session[6] = 'Y';
     else $session[6] = 'N';
@@ -355,7 +355,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
 	else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
   }
 }
-if ($update_ok === TRUE) curl_close($ch);
+curl_close($ch);
 
 //Output
 if ($cmd_cron === TRUE) {
