@@ -64,7 +64,7 @@ if ($session !== FALSE) $session = explode('|', $session);
 else $session = array('0000', '', '', '', '202001010000', 'N', 'N', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '80','','','');
 
 //Retrieve setting battery level for mail function
-if (is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
+if (isset($_POST['bl']) && is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
   if ($_POST['bl'] > $session[21]) $session[5] = 'N';
   $session[21] = $_POST['bl'];
 }
