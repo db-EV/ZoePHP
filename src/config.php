@@ -45,4 +45,21 @@ $weather_api_key = '';
 //Sverige: SE
 //United Kingdom: GB
 $country = 'DE';
+
+//ABRP Generic Token
+//More information: https://abetterrouteplanner.com/
+$abrp_token = '';
+//ABRP model
+//Ph1
+//22 kWh Q210: 'renault:zoe:q210:22:other'
+//22 kWh R240: 'renault:zoe:r240:22:other'
+//Z.E. 40 Q90: 'renault:zoe:q90:40:other'
+//Z.E. 40 R110: 'renault:zoe:r110:40:other'
+//Z.E. 40 R90: 'renault:zoe:r90:40:other'
+//Ph2
+//Z.E. 40 R110: 'renault:zoe:20:40:r110:noccs'
+//Z.E. 40 R110 with CCS: 'renault:zoe:20:40:r110'
+//Z.E. 50 R110: 'renault:zoe:20:52:r110'
+//Z.E. 50 R135: 'renault:zoe:20:52:r135'
+$abrp_model = '';
 ?>
