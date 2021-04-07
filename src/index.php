@@ -360,7 +360,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   if (!empty($abrp_token) && !empty($abrp_model)) {
     if ($session[10] == 1) $abrp_is_charging = 1;
     else $abrp_is_charging = 0;
-    $jsonData = urlencode('{"car_model":"'.$abrp_model.'","utc":"'.$utc_timestamp.'","soc":"'.$session[12].'","odometer":"'.$session[7].'","is_charging":"'.$abrp_is_charging.'"}');
+    $jsonData = urlencode('{"car_model":"'.$abrp_model.'","utc":'.$utc_timestamp.',"soc":'.$session[12].',"odometer":'.$session[7].',"is_charging":'.$abrp_is_charging.'}');
     $ch = curl_init('https://api.iternio.com/1/tlm/send?api_key=fd99255b-91a0-45cd-9df5-d6baa8e50ef8&token='.$abrp_token.'&tlm='.$jsonData);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     $response = curl_exec($ch);
