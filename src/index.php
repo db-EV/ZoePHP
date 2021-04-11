@@ -206,6 +206,7 @@ if ($update_ok === TRUE) {
   $md5 = md5($response);
   $responseData = json_decode($response, TRUE);
   $s = date_create_from_format(DATE_ISO8601, $responseData['data']['attributes']['timestamp'], timezone_open('UTC'));
+  $utc_timestamp = date_timestamp_get($s);
   if (empty($s)) $update_sucess = FALSE;
   else {
     $update_sucess = TRUE;
@@ -353,6 +354,17 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
     }
     if ($zoeph == 1) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
 	else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
+  }
+
+  //Send data to ABRP if configured
+  if (!empty($abrp_token) && !empty($abrp_model)) {
+    if ($session[10] == 1) $abrp_is_charging = 1;
+    else $abrp_is_charging = 0;
+    $jsonData = urlencode('{"car_model":"'.$abrp_model.'","utc":'.$utc_timestamp.',"soc":'.$session[12].',"odometer":'.$session[7].',"is_charging":'.$abrp_is_charging.'}');
+    $ch = curl_init('https://api.iternio.com/1/tlm/send?api_key=fd99255b-91a0-45cd-9df5-d6baa8e50ef8&token='.$abrp_token.'&tlm='.$jsonData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    $response = curl_exec($ch);
+    if ($response === FALSE) die(curl_error($ch));
   }
 }
 curl_close($ch);
