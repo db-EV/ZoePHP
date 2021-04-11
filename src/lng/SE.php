@@ -38,4 +38,14 @@ $lng[35] = 'minuter';
 $lng[36] = 'Räckvidd';
 $lng[37] = 'Statusuppdatering';
 $lng[38] = 'Laddning avslutad.';
+$lng[39] = 'Laddningshistorik';
+$lng[40] = 'Start';
+$lng[41] = 'Laddning';
+$lng[42] = 'till';
+$lng[43] = 'i';
+$lng[44] = 'minuter';
+$lng[45] = 'Hastighet';
+$lng[46] = 'Status';
+$lng[47] = 'vid';
+$lng[48] = 'Tillbaka';
 ?>
