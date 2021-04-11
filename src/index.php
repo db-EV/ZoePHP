@@ -423,7 +423,7 @@ if ($cmd_cron === TRUE) {
     if ($zoeph == 2) {
       echo '<TR><TD>'.$lng[25].':</TD><TD><A HREF="https://www.google.com/maps/place/'.$session[17].','.$session[18].'" TARGET="_blank">Google Maps</A></TD></TR>'."\n".'<TR><TD>'.$lng[26].':</TD><TD>'.$session[19].' '.$session[20].'</TD></TR>'."\n";
     }
-  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng[27].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2">'.$lng[15].': <A HREF="'.$requesturi.'?cmon">'.$lng[28].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng[29].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng[30].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="history.php">Charging history</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
+  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng[27].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2">'.$lng[15].': <A HREF="'.$requesturi.'?cmon">'.$lng[28].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng[29].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng[30].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng[39].'</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 }
