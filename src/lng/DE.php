@@ -38,4 +38,14 @@ $lng[35] = 'Minuten';
 $lng[36] = 'Reichweite';
 $lng[37] = 'Statusupdate';
 $lng[38] = 'Ladevorgang beendet.';
+$lng[39] = 'Ladehistorie';
+$lng[40] = 'Start';
+$lng[41] = 'Ladevorgang';
+$lng[42] = 'bis';
+$lng[43] = 'in';
+$lng[44] = 'Minuten';
+$lng[45] = 'Leistung';
+$lng[46] = 'Status';
+$lng[47] = 'um';
+$lng[48] = 'Zur&uuml;ck';
 ?>
