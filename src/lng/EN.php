@@ -38,4 +38,14 @@ $lng[35] = 'minutes';
 $lng[36] = 'Range';
 $lng[37] = 'Status update';
 $lng[38] = 'Charging finished.';
+$lng[39] = 'Charging history';
+$lng[40] = 'Start';
+$lng[41] = 'Charging';
+$lng[42] = 'to';
+$lng[43] = 'in';
+$lng[44] = 'minutes';
+$lng[45] = 'Power';
+$lng[46] = 'Status';
+$lng[47] = 'at';
+$lng[48] = 'Back';
 ?>
