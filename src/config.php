@@ -38,6 +38,8 @@ $cron_acs = 15;
 //openweathermap.org API key for requesting weather data (only Ph2)
 //More information: https://openweathermap.org/appid
 $weather_api_key = '';
+//OpenWeather subscription plan: free = 0, subscripted = 1
+$weather_api_subscription = 0;
 
 //Registration country of your Renault Zoe
 //Deutschland: DE

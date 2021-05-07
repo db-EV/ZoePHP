@@ -301,13 +301,25 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
   
   //Request weather data from openweathermap (only Ph2)
   if ($zoeph == 2 && $weather_api_key != '') {
-	$ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$weather_api_lng.'&appid='.$weather_api_key);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	$response = curl_exec($ch);
-	if ($response === FALSE) die(curl_error($ch));
-	$responseData = json_decode($response, TRUE);	
-	$session[22] = $responseData['current']['temp'];
-	$session[23] = $responseData['current']['weather']['0']['description'];
+      // Using OpenWeather free plan or payed service?
+      if ($weather_api_subscription == 0) { // Price plan: free
+	 $ch = curl_init('https://api.openweathermap.org/data/2.5/weather?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$weather_api_lng.'&appid='.$weather_api_key);
+	 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	 $response = curl_exec($ch);
+	 if ($response === FALSE) die(curl_error($ch));
+	 $responseData = json_decode($response, TRUE);	
+	 //print_r($responseData);
+	 $session[22] = $responseData['main']['temp'];
+	 $session[23] = $responseData['weather']['0']['description'];
+      } else { // Price plan: subscription
+	 $ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$weather_api_lng.'&appid='.$weather_api_key);
+	 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	 $response = curl_exec($ch);
+	 if ($response === FALSE) die(curl_error($ch));
+	 $responseData = json_decode($response, TRUE);	
+	 $session[22] = $responseData['current']['temp'];
+	 $session[23] = $responseData['current']['weather']['0']['description'];
+      }
   }
 
   //Send mail, execute command or activate schedule mode if configured
