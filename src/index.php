@@ -8,21 +8,21 @@ if (empty(${$country})) $gigya_api = $GB;
 else $gigya_api = ${$country};
 
 //Evaluate parameters
-if (isset($_GET['cron']) || $argv[1] == 'cron') {
+if (isset($_GET['cron']) || (isset($argv[1]) && $argv[1] == 'cron')) {
   header('Content-Type: text/plain; charset=utf-8');
   $cmd_cron = TRUE;
 } else {
   header('Content-Type: text/html; charset=utf-8');
   $cmd_cron = FALSE;
 }
-if (isset($_GET['acnow']) || $argv[1] == 'acnow') $cmd_acnow = TRUE;
+if (isset($_GET['acnow']) || (isset($argv[1]) && $argv[1] == 'acnow')) $cmd_acnow = TRUE;
 else $cmd_acnow = FALSE;
-if (isset($_GET['chargenow']) || $argv[1] == 'chargenow') $cmd_chargenow = TRUE;
+if (isset($_GET['chargenow']) || (isset($argv[1]) && $argv[1] == 'chargenow')) $cmd_chargenow = TRUE;
 else $cmd_chargenow = FALSE;
-if (isset($_GET['cmon']) || $argv[1] == 'cmon') $cmd_cmon = TRUE;
+if (isset($_GET['cmon']) || (isset($argv[1]) && $argv[1] == 'cmon')) $cmd_cmon = TRUE;
 else {
   $cmd_cmon = FALSE;
-  if (isset($_GET['cmoff']) || $argv[1] == 'cmoff') $cmd_cmoff = TRUE;
+  if (isset($_GET['cmoff']) || (isset($argv[1]) && $argv[1] == 'cmoff')) $cmd_cmoff = TRUE;
   else $cmd_cmoff = FALSE;
 }
 
@@ -228,7 +228,7 @@ if ($update_ok === TRUE) {
 } else $update_sucess = FALSE;
 
 //Request more data from Renault if changed data since last request are expected
-if ($md5 != $session[3] && $update_sucess === TRUE) {
+if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
   //Request mileage
   $postData = array(
     'apikey: '.$kamereon_api,
@@ -367,7 +367,7 @@ if ($md5 != $session[3] && $update_sucess === TRUE) {
     if ($response === FALSE) die(curl_error($ch));
   }
 }
-curl_close($ch);
+if (isset($ch)) curl_close($ch);
 
 //Output
 if ($cmd_cron === TRUE) {
@@ -378,7 +378,7 @@ if ($cmd_cron === TRUE) {
   if ($update_sucess === TRUE) echo 'OK';
   else echo 'NO DATA';
 } else {
-  $requesturi = strtok($_SERVER['REQUEST_URI'], '?');
+  $requesturi = isset($_SERVER['REQUEST_URI']) ? strtok($_SERVER['REQUEST_URI'], '?') : '';
   echo '<HTML>'."\n".'<HEAD>'."\n".'<LINK REL="manifest" HREF="zoephp.webmanifest">'."\n".'<LINK REL="stylesheet" HREF="stylesheet.css">'."\n".'<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">'."\n".'<TITLE>'.$zoename.'</TITLE>'."\n".'</HEAD>'."\n".'<BODY>'."\n".'<DIV ID="container">'."\n".'<MAIN>'."\n";
   if ($mail_bl === 'Y') echo '<FORM ACTION="'.$requesturi.'" METHOD="post" AUTOCOMPLETE="off">'."\n";
   echo '<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH><TD><SMALL><A HREF="'.$requesturi.'">'.$lng[1].'</A></SMALL></TD></TR>'."\n";
@@ -429,7 +429,7 @@ if ($cmd_cron === TRUE) {
 }
 
 //Cache data
-if ($update_ok === TRUE || $cmd_cron == TRUE || is_numeric($_POST['bl'])) {
+if ($update_ok === TRUE || $cmd_cron == TRUE || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
   $session[3] = $md5;
   $session[4] = $timestamp_now;
   $session = implode('|', $session);
