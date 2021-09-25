@@ -29,8 +29,8 @@ $mail_csf = 'N';
 //Execute command, e.g. 'bash hello.sh'
 $exec_csf = '';
 
-//Show charging schedule info and commands: Y for yes or N for no
-$show_cm = 'Y';
+//Hide charging schedule info and commands: Y for yes or N for no
+$hide_cm = 'N';
 
 //Using cron: Request index.php?cron or php ../index.php cron
 //Minimum time interval in minutes between two requests if the car isn't charging
