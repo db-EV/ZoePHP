@@ -405,9 +405,11 @@ if ($cmd_cron === TRUE) {
     } else {
       echo $lng[9];
     }
-	echo '</TD></TR>'."\n".'<TR><TD>'.$lng[15].':</TD><TD>';
-	if (substr($session[24], 0, 6) === 'always' || $session[24] === 'n/a') echo $lng[16];
-	else echo $lng[17];
+	if ($show_cm === 'Y') {
+	  echo '</TD></TR>'."\n".'<TR><TD>'.$lng[15].':</TD><TD>';
+	  if (substr($session[24], 0, 6) === 'always' || $session[24] === 'n/a') echo $lng[16];
+	  else echo $lng[17];
+    }
     echo '</TD></TR>'."\n".'<TR><TD>'.$lng[18].':</TD><TD>'.$session[12].' %</TD></TR>'."\n";
 	if ($mail_bl === 'Y' || $cmon_bl === 'Y' || !empty($exec_bl)) echo '<TR><TD>'.$lng[19].':</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
     if ($zoeph == 2) {
@@ -423,7 +425,10 @@ if ($cmd_cron === TRUE) {
     if ($zoeph == 2) {
       echo '<TR><TD>'.$lng[25].':</TD><TD><A HREF="https://www.google.com/maps/place/'.$session[17].','.$session[18].'" TARGET="_blank">Google Maps</A></TD></TR>'."\n".'<TR><TD>'.$lng[26].':</TD><TD>'.$session[19].' '.$session[20].'</TD></TR>'."\n";
     }
-  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng[27].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2">'.$lng[15].': <A HREF="'.$requesturi.'?cmon">'.$lng[28].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng[29].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng[30].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng[39].'</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
+  echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng[27].'</A></TD></TR>'."\n";
+  if ($show_cm === 'Y') echo '<TR><TD COLSPAN="2">'.$lng[15].': <A HREF="'.$requesturi.'?cmon">'.$lng[28].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng[29].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng[30].'</A></TD></TR>'."\n";
+  if ($zoeph == 1) echo '<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng[39].'</A></TD></TR>'."\n";
+  echo '</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 }
