@@ -66,10 +66,7 @@ $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
 $responseData = json_decode($response, TRUE);
 $data = array();
-if (isset($responseData['data']['attributes']['charges'])) {
-  if ($zoeph == 2) $data = array_reverse($responseData['data']['attributes']['charges']);
-  else $data = $responseData['data']['attributes']['charges'];
-}
+if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
 
 //Output
 echo '<HTML>'."\n".'<HEAD>'."\n".'<LINK REL="stylesheet" HREF="stylesheet.css">'."\n".'<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">'."\n".'<TITLE>'.$zoename.'</TITLE>'."\n".'</HEAD>'."\n".'<BODY>'."\n".'<DIV ID="container">'."\n".'<MAIN>'."\n".'<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
