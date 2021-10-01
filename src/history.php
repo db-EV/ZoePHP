@@ -33,10 +33,10 @@ if (!isset($_GET['vin'])) {
 ///////////////////////////
 echo "<center><b><big><big><big>Renault unofficial dashboard</big></big></big></b></center><br><br>";
 echo "Syntax:<br>";
-echo "https://jumpjack.altervista.org/myrenault-debug/php/history.php?pass=miapasssegretissima&username=MYRENAULT_EMAIL&password=MYRENAULT_PASSWORD&&vin=MYVIN<br>";
-echo "You can add this parameters to the url:<br>";
+echo "https://jumpjack.altervista.org/myrenault-debug/php/history.php?pass=miapasssegretissima&username=MYRENAULT_EMAIL&password=MYRENAULT_PASSWORD&&vin=MYVIN<br><br>";
+echo "You can add these parameters to the url:<br>";
 echo "<b>backmonths</b>: negative number - how many months back to start data from. (Works only with '-1'?)<br>";
-echo "<b>groupingType</b>: day or month";
+echo "<b>groupingType</b>: day or month<br>";
 echo "<b>dateRange</b> (overrides 'backmonths'): For day grouping use 8 figures  per date(YYYYMMDD-YYYYMMDD); for month grouping use 6 figures per date (YYYYMM-YYYYMM)=20210901-20210929<br><br><br>";
 
 
