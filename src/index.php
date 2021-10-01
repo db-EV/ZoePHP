@@ -1,4 +1,13 @@
 <?php
+if (!isset($_GET['pass'])) {
+    die("Not authorized");
+} else {
+	if ($_GET['pass'] != "miapasssegretissima") {
+		die("Not authorized");
+	}
+}
+
+
 session_cache_limiter('nocache');
 require 'api-keys.php';
 require 'config.php';
