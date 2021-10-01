@@ -48,4 +48,7 @@ $lng[45] = 'Power';
 $lng[46] = 'Status';
 $lng[47] = 'at';
 $lng[48] = 'Back';
+$lng[140] = 'Date';
+$lng[141] = 'Count';
+$lng[142] = 'kWh';
 ?>
