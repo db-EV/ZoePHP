@@ -1,8 +1,22 @@
-# ZoePHP
-Unofficial PHP client for the Renault Zoe.
+# Renault unofficial PHP dashboard for EVs and PHEVs
+Unofficial PHP client for the Renault Zoe - fork from https://github.com/db-EV/ZoePHP/network/members . 
+
+Started 01/OCT/2021
+
+## New features (in progress)
+* Security check 1: you must specify a password to use the script
+* Security check 2: you must provide Renault credentials in the URL, they are no more saved into config.php
+* Charge history: lists all charge sessions, grouped by day or by month, in table format for easy export to Excel
+
+## To do
+* HVAC history
+* Trips history
+* Various undocumented commands found here: https://github.com/mitchellrj/kamereon-python/blob/146904802301aa0b0008e2bdb3a88ed10ff50acf/kamereon/kamereon.py
+
+---------------
 
 ## Requirements
-* Renault Zoe with active data subscription
+* Renault car with active data subscription
 * Webserver with PHP 5.3 (or newer) and cURL installed
 * Write permissions for the script in its own folder
 
