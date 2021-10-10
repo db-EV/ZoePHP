@@ -5,7 +5,14 @@ if (!isset($_GET['pass'])) {
 	if ($_GET['pass'] != "miapasssegretissima") {
 		die("Not authorized");
 	}
+    
+
 }
+
+$username  = $_GET['username'];
+$password = $_GET['password'];
+$vin  = $_GET['vin'];
+
 session_cache_limiter('nocache');
 require 'api-keys.php';
 require 'config.php';
@@ -20,35 +27,38 @@ echo 'gigya-api-key: '.$gigya_api."\n\n";
 $session = file_get_contents('session');
 $session = explode('|', $session);
 
+//Request battery and charging status from Renault
 $postData = array(
   'apikey: '.$kamereon_api,
   'x-gigya-id_token: '.$session[1]
-  'Content-type: application/vnd.api+json'
 );
-
-
-//Request battery and charging status from Renault
 $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/battery-status?country='.$country);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
-echo 'battery-status: '.$response."\n\n";
+echo 'battery-status: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 
+$postData = array(
+  'apikey: '.$kamereon_api,
+  'x-gigya-id_token: '.$session[1], 
+  'Content-type: application/vnd.api+json'
+);
 
 //Request mileage
+
 $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/cockpit?country='.$country);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'cockpit: '.$response."\n\n";
+echo 'cockpit: '.  str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 
 //Request chargemode
 $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/charge-mode?country='.$country);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
-echo 'charge-mode: '.$response."\n\n";
+echo 'charge-mode:'.  str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 
 //Request outside temperature
 $postData = array(
@@ -60,7 +70,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'hvac-status: '.$response."\n\n";
+echo 'hvac-status: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 
 //Request GPS position
 $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/location?country='.$country);
@@ -68,7 +78,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'location: '.$response."\n\n";
+echo 'location: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 
 
 //Request charging history
@@ -77,7 +87,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'charges: '.$response."\n\n";
+echo 'charges: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 $responseData = json_decode($response, TRUE);
 $data = array();
 if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
@@ -89,31 +99,31 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'charges history: '.$response."\n\n";
+echo 'charges history: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 $responseData = json_decode($response, TRUE);
 $data = array();
 if (isset($responseData['data']['attributes']['chargeSummaries'])) $data = $responseData['data']['attributes']['chargeSummaries'];
 
 
 //Request hvac  history 1
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/hvac-sessions?country='.$country.'&start='.date("Ymd", strtotime("-1 months")).'&end='.date("Ymd"));
+$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/hvac-sessions?country='.$country.'&start='.date("Ymd", strtotime("-1 months")).'&end='.date("Ymd"));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'hvac sessions: '.$response."\n\n";
+echo 'hvac sessions: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 $responseData = json_decode($response, TRUE);
 $data = array();
 //if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
 
 
 //Request hvac history 2
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/hvac-history?country='.$country.'&type=day&start='.date("Ymd", strtotime("-1 months")).'&end='.date("Ymd"));
+$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/hvac-history?country='.$country.'&type=day&start='.date("Ymd", strtotime("-1 months")).'&end='.date("Ymd"));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'hvac 2: '.$response."\n\n";
+echo 'hvac 2: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 $responseData = json_decode($response, TRUE);
 $data = array();
 //if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
@@ -125,9 +135,9 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
 $response = curl_exec($ch);
 if ($response === FALSE) die(curl_error($ch));
-echo 'trips: '.$response."\n\n";
+echo 'trips: '.str_replace  ($vin, 'xxxxxx', $response). "\n\n";
 $responseData = json_decode($response, TRUE);
-$data = array();
+$dat1a = array();
 //if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
 
 

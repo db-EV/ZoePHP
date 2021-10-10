@@ -1,35 +1,5 @@
 <?php
-if (!isset($_GET['pass'])) {
-    die("Not authorized");
-} else {
-	if ($_GET['pass'] != "miapasssegretissima") {
-		die("Not authorized");
-	}
-}
-
-
-
-if (!isset($_GET['username'])) {
-    die("Please provide username for your MyRenault account.");
-} else {
-	$username = $_GET['username'];
-}
-
-
-
-
-if (!isset($_GET['password'])) {
-    die("Please provide password for your MyRenault account.");
-} else {
-	$password = $_GET['password'];
-}
-
-if (!isset($_GET['vin'])) {
-    die("Please provide VIN of your vehicle (it's in your MyRenault app)");
-} else {
-	$vin = $_GET['vin'];
-}
-
+require 'security.php';
 ///////////////////////////
 echo "<center><b><big><big><big>Renault unofficial dashboard</big></big></big></b></center><br><br>";
 echo "Syntax:<br>";
@@ -147,7 +117,7 @@ if ($groupingType == "month") {
 if (isset($_GET['dateRange'])) {
 	$finalUrl = 'https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/charge-history?country=' . $country . '&type=' . $groupingType  .	$rangeUrl;
 	echo "Request url:<br>\n";
-	echo $finalUrl;
+	echo  str_replace ( $vin ,'xxx ',  str_replace  ( $session[2],'xxx',    $finalUrl  )) ;
 	$ch = curl_init($finalUrl);
 }
 

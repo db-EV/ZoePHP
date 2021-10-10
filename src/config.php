@@ -5,11 +5,12 @@ $zoename = 'Renault Zoe';
 //Your Renault Zoe model: 1 for Ph1 or 2 for Ph2
 $zoeph = 1;
 
-//Login to My Renault
-// Moved to URL
+// to My Renault
+
+ 
 
 //VIN of your Renault Zoe
-// Moved to URL
+
 
 //Save data in database.csv: Y for yes or N for no
 $save_in_db = 'N';
@@ -46,7 +47,7 @@ $weather_api_key = '';
 //Österreich: AT
 //Sverige: SE
 //United Kingdom: GB
-$country = 'EN';
+$country = 'IT';
 
 //ABRP Generic Token
 //More information: https://abetterrouteplanner.com/
