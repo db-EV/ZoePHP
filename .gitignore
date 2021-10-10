@@ -1,3 +1,6 @@
 src/config.php
 src/database.csv
 src/session
+*.bak
+index-mio.php
+index-test.php
