@@ -45,9 +45,10 @@ $weather_api_key = '';
 //Registration country of your Renault Zoe
 //Deutschland: DE
 //Österreich: AT
+//Italia: IT
 //Sverige: SE
 //United Kingdom: GB
-$country = 'DE';
+$country = 'GB';
 
 //ABRP Generic Token
 //More information: https://abetterrouteplanner.com/
