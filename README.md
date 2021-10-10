@@ -20,6 +20,13 @@ Unofficial PHP client for the Renault Zoe.
 * Give a big hand also to [Muscat's OxBlog](https://muscatoxblog.blogspot.com/2019/07/delving-into-renaults-new-api.html) for decrypting the Renault API.
 * For security reasons I recommend to secure the script with basic authentication or other access restrictions.
 
+## Translations
+The script is available in different languages. Following are already included:
+* English
+* Deutsch
+* Svenska
+* Italiano
+
 ## Screenshots
 Ph1 | Ph2
 ------------ | -------------
