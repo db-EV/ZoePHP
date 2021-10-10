@@ -36,7 +36,6 @@ $lng['Battery level'] = 'Batterinivå';
 $lng['Remaining charging time'] = 'Återstående laddningstid';
 $lng['minutes'] = 'minuter';
 $lng['Range'] = 'Räckvidd';
-$lng['Status update'] = 'Statusuppdatering';
 $lng['Charging finished.'] = 'Laddning avslutad.';
 $lng['Charging history'] = 'Laddningshistorik';
 $lng['Start'] = 'Start';
