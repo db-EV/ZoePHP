@@ -1,11 +1,18 @@
 <?php
-$showResponse=true;
  echo '<HTML>'."\n".'<HEAD>'."\n".'<LINK REL="manifest" HREF="zoephp.webmanifest">'."\n".'<LINK REL="stylesheet" HREF="stylesheet.css">'."\n".'<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">'."\n".'<TITLE>'.$zoename.'</TITLE>'."\n".'</HEAD>'."\n".'<BODY>'."\n";
+
+if (isset($_GET['showResponse'])) {
+	$showResponse = $_GET['showResponse'];
+} else {
+	$showResponse = null;
+}
+
 session_cache_limiter('nocache');
 require 'api-keys.php';
 require 'config.php';
 require "tests-LC.php";
 require "security.php";
+$securityString = '?pass=miapasssegretissima&username=' . $username . '&password=' . $password . '&vin=' . $vin;
 if (file_exists('lng/'.$country.'.php')) require 'lng/'.$country.'.php';
 else require 'lng/EN.php';
 if (empty(${$country})) $gigya_api = $GB;
@@ -88,13 +95,13 @@ if ($cmd_cron == TRUE) {
 $s = date_create_from_format('YmdHi', $session[4]);
 date_add($s, date_interval_create_from_date_string('1 minutes'));
 $s = date_format($s, 'YmdHi');
-if ($timestamp_now < $s) $update_ok = FALSE;
-else $update_ok = TRUE;
+if ($timestamp_now < $s) $update_authorized = FALSE;
+else $update_authorized = TRUE;
 
 //Retrieve new Gigya token if the date has changed since last request
 if (empty($session[1]) || $session[0] !== $date_today) {
   //Login Gigya
-  $update_ok = TRUE;
+  $update_authorized = TRUE;
   $postData = array(
     'ApiKey' => $gigya_api,
     'loginId' => $username,
@@ -115,10 +122,10 @@ if (empty($session[1]) || $session[0] !== $date_today) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -147,10 +154,10 @@ if (empty($session[1]) || $session[0] !== $date_today) {
 					echo "Error 002: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -162,7 +169,7 @@ if (empty($session[1]) || $session[0] !== $date_today) {
 }
 
 //Request Renault account id if not cached
-if (empty($session[2])) {
+
   //Request Kamereon account id
   $postData = array(
     'apikey: '.$kamereon_api,
@@ -180,16 +187,17 @@ if (empty($session[2])) {
 					echo "Error 003: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
   $responseData = json_decode($response, TRUE);
-  $session[2] = $responseData['accounts'][0]['accountId'];
-}
+  $accountId = $responseData['accounts'][0]['accountId'];
+  $accountId2 = $responseData['accounts'][1]['accountId'];
+
 
 //Evaluate parameter "acnow" for preconditioning
 if ($cmd_acnow === TRUE) {
@@ -199,7 +207,7 @@ if ($cmd_acnow === TRUE) {
     'x-gigya-id_token: '.$session[1]
   );
   $jsonData = '{"data":{"type":"HvacStart","attributes":{"action":"start","targetTemperature":"21"}}}';
-  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/hvac-start?country='.$country);
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/hvac-start?country='.$country);
   curl_setopt($ch, CURLOPT_POST, TRUE);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
@@ -213,10 +221,10 @@ if ($cmd_acnow === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -230,7 +238,7 @@ if ($cmd_chargenow === TRUE) {
     'x-gigya-id_token: '.$session[1]
   );
   $jsonData = '{"data":{"type":"ChargingStart","attributes":{"action":"start"}}}';
-  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charging-start?country='.$country);
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charging-start?country='.$country);
   curl_setopt($ch, CURLOPT_POST, TRUE);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
@@ -244,10 +252,10 @@ if ($cmd_chargenow === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -262,7 +270,7 @@ if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
   );
   if ($cmd_cmon === TRUE) $jsonData = '{"data":{"type":"ChargeMode","attributes":{"action":"schedule_mode"}}}';
   else $jsonData = '{"data":{"type":"ChargeMode","attributes":{"action":"always_charging"}}}';
-  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charge-mode?country='.$country);
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charge-mode?country='.$country);
   curl_setopt($ch, CURLOPT_POST, TRUE);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
@@ -276,10 +284,10 @@ if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -287,12 +295,12 @@ if ($cmd_cmon === TRUE || $cmd_cmoff === TRUE) {
 }
 
 //Request battery and charging status from Renault
-if ($update_ok === TRUE) {
+if ($update_authorized === TRUE) {
   $postData = array(
     'apikey: '.$kamereon_api,
     'x-gigya-id_token: '.$session[1]
   );
-	$queryUrl = 'https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/battery-status?country='.$country;
+	$queryUrl = 'https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/battery-status?country='.$country;
   $ch = curl_init($queryUrl);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
@@ -305,10 +313,10 @@ if ($update_ok === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -344,7 +352,7 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
     'apikey: '.$kamereon_api,
     'x-gigya-id_token: '.$session[1]
   );
-  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/cockpit?country='.$country);
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/cockpit?country='.$country);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
   $response = curl_exec($ch);
@@ -356,10 +364,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -373,7 +381,7 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
     'apikey: '.$kamereon_api,
     'x-gigya-id_token: '.$session[1]
   );
-  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/charge-mode?country='.$country);
+  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/charge-mode?country='.$country);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
   $response = curl_exec($ch);
@@ -385,10 +393,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -404,7 +412,7 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
       'apikey: '.$kamereon_api,
       'x-gigya-id_token: '.$session[1]
     );
-    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/hvac-status?country='.$country);
+    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/hvac-status?country='.$country);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
     $response = curl_exec($ch);
@@ -416,10 +424,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -436,7 +444,7 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
       'apikey: '.$kamereon_api,
       'x-gigya-id_token: '.$session[1]
     );
-    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/location?country='.$country);
+    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/location?country='.$country);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
     $response = curl_exec($ch);
@@ -448,10 +456,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -480,10 +488,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -507,7 +515,7 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 	      'x-gigya-id_token: '.$session[1]
 	    );
 	    $jsonData = '{"data":{"type":"ChargeMode","attributes":{"action":"schedule_mode"}}}';
-	    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charge-mode?country='.$country);
+	    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$accountId.'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/actions/charge-mode?country='.$country);
 	    curl_setopt($ch, CURLOPT_POST, TRUE);
 	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	    curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
@@ -521,10 +529,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -561,10 +569,10 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
 					echo "Error 001: <pre> " . $response . "</pre><br>";
 					die(curl_error($ch));
 			} else {
-		 		if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 		if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 			}
 		} else {
-		 if  ($showResponse === true) echo "<pre>" . $response . "</pre><br>";
+		 if  ($showResponse === "true") echo "<pre>" . $response . "</pre><br>";
 		}
 	}
 
@@ -584,24 +592,24 @@ if ($cmd_cron === TRUE) {
 } else {
 
   $requesturi = isset($_SERVER['REQUEST_URI']) ? strtok($_SERVER['REQUEST_URI'], '?') : '';
-  $requesturi .= '?pass=miapasssegretissima&username=' . $username . '&password=' . $password . '&vin=' . $vin; // Added for security
+  $requesturi .= $securityString;// Added for security
   echo '<DIV ID="container">'."\n".'<MAIN>'."\n";
   if ($mail_bl === 'Y') echo '<FORM ACTION="'.$requesturi.'" METHOD="post" AUTOCOMPLETE="off">'."\n";
   echo '<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH><TD><SMALL><A HREF="'.$requesturi.'">'.$lng['Update'].'</A></SMALL></TD></TR>'."\n";
-  if ($cmd_acnow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Preconditioning requested.'].'</TD><TD>'."\n";
-  if ($cmd_chargenow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Instant charging requested.'].'</TD><TD>'."\n";
-  if ($cmd_cmon === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Activation of the charging schedule requested.'].'</TD><TD>'."\n";
-  else if ($cmd_cmoff === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Deactivation of the charging schedule requested.'].'</TD><TD>'."\n";
-  if ($update_sucess === FALSE && $update_ok === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['No new data'].'</TD><TD>'."\n";
+  if ($cmd_acnow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Status:']. "<b>" . $lng['Preconditioning requested.']. "</b>" . '</TD><TD>'."\n";
+  if ($cmd_chargenow === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Status:']. "<b>" . $lng['Instant charging requested.']. "</b>" . '</TD><TD>'."\n";
+  if ($cmd_cmon === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Status:']. "<b>" . $lng['Activation of the charging schedule requested.']. "/<b>" . '</TD><TD>'."\n";
+  else if ($cmd_cmoff === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Status:']. "<b>" . $lng['Deactivation of the charging schedule requested.']. "</b>" . '</TD><TD>'."\n";
+  if ($update_sucess === FALSE && $update_authorized === TRUE) echo '<TR><TD COLSPAN="2">'.$lng['Status:']. "<b>" . $lng['No new data']. "</b>" . '</TD><TD>'."\n";
     echo '<TR><TD>'.$lng['Mileage'].':</TD><TD>'.$session[7].' km</TD></TR>'."\n".'<TR><TD>'.$lng['Connected'].':</TD><TD>';
-    if ($session[11] == 0){
+    if ($session[11] == 0){ // Cable status
       echo $lng['No'];
     } else {
       echo $lng['Yes'];
     }
     echo '</TD></TR>'."\n".'<TR><TD>'.$lng['Charging'].':</TD><TD>';
-    if ($session[10] == 1){
-	  if ($session[15] != ''){
+    if ($session[10] == 1){ // Charging status
+	  if ($session[15] != ''){ // Charging time
         $s = date_create_from_format('d.m.YH:i', $session[8].$session[9]);
         date_add($s, date_interval_create_from_date_string($session[15].' minutes'));
         $s = date_format($s, 'H:i');
@@ -609,14 +617,14 @@ if ($cmd_cron === TRUE) {
       echo $lng['Yes'].'</TD></TR>'."\n".'<TR><TD>'.$lng['Ready'].':</TD><TD>'.$s;
 	  if ($zoeph == 1) echo '</TD></TR>'."\n".'<TR><TD>'.$lng['Effect'].':</TD><TD>'.$session[16].' kW';
     } else {
-      echo $lng['No'];
+      echo $lng['Not available'];
     }
 	if ($hide_cm !== 'Y') {
 	  echo '</TD></TR>'."\n".'<TR><TD>'.$lng['Charging schedule'].':</TD><TD>';
 	  if (substr($session[24], 0, 6) === 'always' || $session[24] === 'n/a') echo $lng['Inactive'];
 	  else echo $lng['Active'];
-    }
-    echo '</TD></TR>'."\n".'<TR><TD>'.$lng['Battery level'].':</TD><TD>'.$session[12].' %</TD></TR>'."\n";
+  }
+  echo '</TD></TR>'."\n".'<TR><TD>'.$lng['Battery level'].':</TD><TD>'.$session[12].' %</TD></TR>'."\n";
 	if ($mail_bl === 'Y' || $cmon_bl === 'Y' || !empty($exec_bl)) echo '<TR><TD>'.$lng['Action at battery level'].':</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
     if ($zoeph == 2) {
       echo '<TR><TD>'.$lng['Battery capacity'].':</TD><TD>'.$session[13].' kWh</TD></TR>'."\n";
@@ -633,14 +641,15 @@ if ($cmd_cron === TRUE) {
     }
   echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng['Start preconditioning'].'</A></TD></TR>'."\n";
   if ($hide_cm !== 'Y') echo '<TR><TD COLSPAN="2">'.$lng['Charging schedule'].': <A HREF="'.$requesturi.'?cmon">'.$lng['on'].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng['off'].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng['Start charging'].'</A></TD></TR>'."\n";
-  if ($zoeph == 1) echo '<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng['Charging history'].'</A></TD></TR>'."\n";
+  if ($zoeph == 1) echo '<TR><TD COLSPAN="2"><A HREF="history.php' . $securityString . '&accountId=' . $accountId . '"  target="_blank" rel="noopener noreferrer">' .$lng['Charging history'].'</A></TD></TR>'."\n";
+		// see https://www.freecodecamp.org/news/how-to-use-html-to-open-link-in-new-tab/
   echo '</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 }
 
 //Cache data
-if ($update_ok === TRUE || $cmd_cron == TRUE || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
+if ($update_authorized === TRUE || $cmd_cron == TRUE || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
   $session[3] = $md5;
   $session[4] = $timestamp_now;
   $session = implode('|', $session);
