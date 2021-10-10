@@ -36,7 +36,6 @@ $lng['Battery level'] = 'Akkustand';
 $lng['Remaining charging time'] = 'Verbleibende Ladezeit';
 $lng['minutes'] = 'Minuten';
 $lng['Range'] = 'Reichweite';
-$lng['Status update'] = 'Statusupdate';
 $lng['Charging finished.'] = 'Ladevorgang beendet.';
 $lng['Charging history'] = 'Ladehistorie';
 $lng['Start'] = 'Start';
