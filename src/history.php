@@ -80,16 +80,16 @@ for ($i = 0; $i < count($data); $i++) {
     $s = date_timezone_set($s, timezone_open('Europe/Berlin'));
     $ed = date_format($s, 'd.m.Y');
 	$et = date_format($s, 'H:i');
-    echo '<TR><TD>'.$lng[40].':</TD><TD>'.$sd.' '.$st.'</TD></TR>'."\n";
-    echo '<TR><TD>'.$lng[41].':</TD><TD>'.$data[$i]['chargeStartBatteryLevel'].' % '.$lng[42].' '.$data[$i]['chargeEndBatteryLevel'].' % '.$lng[43].' '.$data[$i]['chargeDuration'].' '.$lng[44].'</TD></TR>'."\n";
+    echo '<TR><TD>'.$lng['Start'].':</TD><TD>'.$sd.' '.$st.'</TD></TR>'."\n";
+    echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.$data[$i]['chargeStartBatteryLevel'].' % '.$lng['to'].' '.$data[$i]['chargeEndBatteryLevel'].' % '.$lng['in'].' '.$data[$i]['chargeDuration'].' '.$lng['minutes'].'</TD></TR>'."\n";
     if ($zoeph == 1) {
 	  $s = $data[$i]['chargeStartInstantaneousPower']/1000;
-      echo '<TR><TD>'.$lng[45].':</TD><TD>'.$data[$i]['chargePower'].' ('.$s.' kW)</TD></TR>'."\n";
+      echo '<TR><TD>'.$lng['Power'].':</TD><TD>'.$data[$i]['chargePower'].' ('.$s.' kW)</TD></TR>'."\n";
     }
-    echo '<TR><TD>'.$lng[46].':</TD><TD>'.$data[$i]['chargeEndStatus'].' '.$lng[47].' '.$ed.' '.$et.'</TD></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
+    echo '<TR><TD>'.$lng['Status'].':</TD><TD>'.$data[$i]['chargeEndStatus'].' '.$lng['at'].' '.$ed.' '.$et.'</TD></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
   }
 }
-echo '<TR><TD COLSPAN="2"><A HREF="./">'.$lng[48].'</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
+echo '<TR><TD COLSPAN="2"><A HREF="./">'.$lng['Back'].'</A></TD></TR>'."\n".'</TABLE>'."\n".'</ARTICLE>'."\n";
 echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
 curl_close($ch);
 
