@@ -38,6 +38,10 @@ $cron_ncs = 60;
 //Minimum time interval in minutes between two requests if the car charging
 $cron_acs = 15;
 
+//Use Google Maps or OpenStreetMap for Ph2
+//'google' for Google Maps or 'osm' for OpenStreetMap
+$map_provider = 'google';
+
 //openweathermap.org API key for requesting weather data (only Ph2)
 //More information: https://openweathermap.org/appid
 $weather_api_key = '';
