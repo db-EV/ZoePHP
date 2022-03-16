@@ -12,5 +12,5 @@ $GB = '3_e8d4g4SE_Fo8ahyHwwP7ohLGZ79HKNN2T8NjQqoNnk6Epj6ilyYwKdHUyCw3wuxz';
 $IT = '3_js8th3jdmCWV86fKR3SXQWvXGKbHoWFv8NAgRbH7FnIBsi_XvCpN_rtLcI07uNuq';
 
 //Kamereon API key
-$kamereon_api = 'Ae9FDWugRxZQAGm3Sxgk7uJn6Q4CGEA2';
+$kamereon_api = 'VAX7XYKGfa92yMvXculCkEFyfZbuM7Ss';
 ?>
