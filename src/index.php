@@ -72,7 +72,7 @@ if (isset($_POST['bl']) && is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_PO
 //Checking cron time interval
 if ($cmd_cron == TRUE) {
   $s = date_create_from_format('YmdHi', $session[4]);
-  if ($session[6] == 'Y') date_add($s, date_interval_create_from_date_string($cron_acs.' minutes'));
+  if ($session[10] == 1 || $session[6] == 'Y') date_add($s, date_interval_create_from_date_string($cron_acs.' minutes'));
   else date_add($s, date_interval_create_from_date_string($cron_ncs.' minutes'));
   $s = date_format($s, 'YmdHi');
   if ($timestamp_now < $s) exit('INTERVAL NOT REACHED');
