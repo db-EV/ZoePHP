@@ -25,7 +25,7 @@ if ($session[0] !== $date_today) {
     'loginId' => $username,
     'password' => $password,
     'include' => 'data',
-	'sessionExpiration' => 60
+    'sessionExpiration' => 60
   );
   $ch = curl_init('https://accounts.eu1.gigya.com/accounts.login');
   curl_setopt($ch, CURLOPT_POST, TRUE);
@@ -41,7 +41,7 @@ if ($session[0] !== $date_today) {
     'login_token' => $oauth_token,
     'ApiKey' => $gigya_api,
     'fields' => 'data.personId,data.gigyaDataCenter',
-	'expiration' => 87000
+    'expiration' => 87000
   );
   $ch = curl_init('https://accounts.eu1.gigya.com/accounts.getJWT');
   curl_setopt($ch, CURLOPT_POST, TRUE);
@@ -67,6 +67,7 @@ if ($response === FALSE) die(curl_error($ch));
 $responseData = json_decode($response, TRUE);
 $data = array();
 if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
+if ($zoeph == 2) $data = array_reverse($data);
 
 //Output
 echo '<HTML>'."\n".'<HEAD>'."\n".'<LINK REL="stylesheet" HREF="stylesheet.css">'."\n".'<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">'."\n".'<TITLE>'.$zoename.'</TITLE>'."\n".'</HEAD>'."\n".'<BODY>'."\n".'<DIV ID="container">'."\n".'<MAIN>'."\n".'<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
@@ -74,18 +75,24 @@ for ($i = 0; $i < count($data); $i++) {
   if (!empty($data[$i]['chargeStartDate']) && !empty($data[$i]['chargeEndDate'])) {
     $s = date_create_from_format(DATE_ISO8601, $data[$i]['chargeStartDate'], timezone_open('UTC'));
     $s = date_timezone_set($s, timezone_open('Europe/Berlin'));
-	$sd = date_format($s, 'd.m.Y');
-	$st = date_format($s, 'H:i');
-	$s = date_create_from_format(DATE_ISO8601, $data[$i]['chargeEndDate'], timezone_open('UTC'));
+    $sts = $s;
+    $sd = date_format($s, 'd.m.Y');
+    $st = date_format($s, 'H:i');
+    $s = date_create_from_format(DATE_ISO8601, $data[$i]['chargeEndDate'], timezone_open('UTC'));
     $s = date_timezone_set($s, timezone_open('Europe/Berlin'));
+    $ets = $s;
     $ed = date_format($s, 'd.m.Y');
-	$et = date_format($s, 'H:i');
+    $et = date_format($s, 'H:i');
+    $cd = date_diff($sts, $ets);
+    $cdm = date_interval_format($cd, '%a') * 24 * 60;
+    $cdm += date_interval_format($cd, '%h') * 60;
+    $cdm += date_interval_format($cd, '%i');
     echo '<TR><TD>'.$lng['Start'].':</TD><TD>'.$sd.' '.$st.'</TD></TR>'."\n";
-    echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.$data[$i]['chargeStartBatteryLevel'].' % '.$lng['to'].' '.$data[$i]['chargeEndBatteryLevel'].' % '.$lng['in'].' '.$data[$i]['chargeDuration'].' '.$lng['minutes'].'</TD></TR>'."\n";
     if ($zoeph == 1) {
-	  $s = $data[$i]['chargeStartInstantaneousPower']/1000;
+      echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.$data[$i]['chargeStartBatteryLevel'].' % '.$lng['to'].' '.$data[$i]['chargeEndBatteryLevel'].' % '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
+      $s = $data[$i]['chargeStartInstantaneousPower']/1000;
       echo '<TR><TD>'.$lng['Power'].':</TD><TD>'.$data[$i]['chargePower'].' ('.$s.' kW)</TD></TR>'."\n";
-    }
+    } else echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.$data[$i]['chargeEnergyRecovered'].' kWh '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
     echo '<TR><TD>'.$lng['Status'].':</TD><TD>'.$data[$i]['chargeEndStatus'].' '.$lng['at'].' '.$ed.' '.$et.'</TD></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
   }
 }
