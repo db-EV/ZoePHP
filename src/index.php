@@ -419,7 +419,7 @@ if ($cmd_cron === TRUE) {
   }
   echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng['Start preconditioning'].'</A></TD></TR>'."\n";
   if ($hide_cm !== 'Y') echo '<TR><TD COLSPAN="2">'.$lng['Charging schedule'].': <A HREF="'.$requesturi.'?cmon">'.$lng['on'].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng['off'].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng['Start charging'].'</A></TD></TR>'."\n";
-  if ($zoeph == 1) echo '<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng['Charging history'].'</A></TD></TR>'."\n";
+  echo '<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng['Charging history'].'</A></TD></TR>'."\n";
   echo '</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
