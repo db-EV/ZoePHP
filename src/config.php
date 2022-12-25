@@ -1,15 +1,17 @@
 <?php
-//Name for your Renault Zoe (shows as heading)
-$zoename = 'Renault Zoe';
+//Name for your Renault Zoe/MeganE (shows as heading)
+$zoename = 'Renault EV';
 
-//Your Renault Zoe model: 1 for Ph1 or 2 for Ph2
+//Your Renault model:
+//1 for Zoe Ph1
+//2 for Zoe Ph2 and MeganE
 $zoeph = 1;
 
 //Login to My Renault
 $username = 'your@mailadress.com';
 $password = 'My_password';
 
-//VIN of your Renault Zoe
+//VIN of your Renault
 $vin = 'VF1...';
 
 //Save data in database.csv: Y for yes or N for no
@@ -46,7 +48,7 @@ $map_provider = 'google';
 //More information: https://openweathermap.org/appid
 $weather_api_key = '';
 
-//Registration country of your Renault Zoe
+//Registration country of your Renault
 //Deutschland: DE
 //Österreich: AT
 //Italia: IT
@@ -59,15 +61,18 @@ $country = 'GB';
 $abrp_token = '';
 //ABRP model
 //Ph1
-//22 kWh Q210: 'renault:zoe:q210:22:other'
-//22 kWh R240: 'renault:zoe:r240:22:other'
-//Z.E. 40 Q90: 'renault:zoe:q90:40:other'
-//Z.E. 40 R110: 'renault:zoe:r110:40:other'
-//Z.E. 40 R90: 'renault:zoe:r90:40:other'
+//Zoe 22 kWh Q210: 'renault:zoe:q210:22:other'
+//Zoe 22 kWh R240: 'renault:zoe:r240:22:other'
+//Zoe 40 Q90: 'renault:zoe:q90:40:other'
+//Zoe 40 R110: 'renault:zoe:r110:40:other'
+//Zoe 40 R90: 'renault:zoe:r90:40:other'
 //Ph2
-//Z.E. 40 R110: 'renault:zoe:20:40:r110:noccs'
-//Z.E. 40 R110 with CCS: 'renault:zoe:20:40:r110'
-//Z.E. 50 R110: 'renault:zoe:20:52:r110'
-//Z.E. 50 R135: 'renault:zoe:20:52:r135'
+//Zoe 40 R110: 'renault:zoe:20:40:r110:noccs'
+//Zoe 40 R110 with CCS: 'renault:zoe:20:40:r110'
+//Zoe 50 R110: 'renault:zoe:20:52:r110'
+//Zoe 50 R135: 'renault:zoe:20:52:r135'
+//MeganE EV40: 'renault:megane:22:40'
+//MeganE EV60: 'renault:megane:22:60'
+//
 $abrp_model = '';
 ?>
