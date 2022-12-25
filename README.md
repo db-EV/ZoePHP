@@ -1,5 +1,5 @@
 # ZoePHP
-Unofficial PHP client for the Renault Zoe.
+Unofficial PHP client for the Renault Zoe. It works even with the Renault Megane E-Tech Electric.
 
 ## Requirements
 * Renault Zoe with active data subscription
