@@ -300,7 +300,7 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
   
   //Request weather data from openweathermap (only Ph2)
   if ($zoeph == 2 && $weather_api_key != '') {
-    $ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$weather_api_lng.'&appid='.$weather_api_key);
+    $ch = curl_init('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='.$session[17].'&lon='.$session[18].'&dt='.$weather_api_dt.'&units=metric&lang='.$country.'&appid='.$weather_api_key);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     $response = curl_exec($ch);
     if ($response === FALSE) die(curl_error($ch));
