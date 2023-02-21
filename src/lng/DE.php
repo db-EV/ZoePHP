@@ -47,4 +47,5 @@ $lng['Power'] = 'Leistung';
 $lng['Status'] = 'Status';
 $lng['at'] = 'um';
 $lng['Back'] = 'Zur&uuml;ck';
+$lng['AverageChargingPower'] = 'Durchschnittliche Ladeleistung';
 ?>
