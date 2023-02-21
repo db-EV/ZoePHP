@@ -93,8 +93,8 @@ for ($i = 0; $i < count($data); $i++) {
       $s = $data[$i]['chargeStartInstantaneousPower']/1000;
       echo '<TR><TD>'.$lng['Power'].':</TD><TD>'.$data[$i]['chargePower'].' ('.$s.' kW)</TD></TR>'."\n";
     } else {
-      echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.$data[$i]['chargeEnergyRecovered'].' kWh '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
-      echo '<TR><TD>'.$lng['AverageChargingPower'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'] * 60 / ($cdm+0.0000001),2).' kW</TD></TR>'."\n";
+      echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'], 2).' kWh '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
+      echo '<TR><TD>'.$lng['AverageChargingPower'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'] * 60 / ($cdm+0.0000001), 2).' kW</TD></TR>'."\n";
     }
     echo '<TR><TD>'.$lng['Status'].':</TD><TD>'.$data[$i]['chargeEndStatus'].' '.$lng['at'].' '.$ed.' '.$et.'</TD></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
   }
