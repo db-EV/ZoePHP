@@ -47,4 +47,5 @@ $lng['Power'] = 'Potenza';
 $lng['Status'] = 'Stato';
 $lng['at'] = 'a';
 $lng['Back'] = 'Indietro';
+$lng['AverageChargingPower'] = 'Potenza di ricarica media';
 ?>
