@@ -47,4 +47,5 @@ $lng['Power'] = 'Hastighet';
 $lng['Status'] = 'Status';
 $lng['at'] = 'vid';
 $lng['Back'] = 'Tillbaka';
+$lng['AverageChargingPower'] = 'Genomsnittlig laddningseffekt';
 ?>

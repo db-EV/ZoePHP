@@ -47,4 +47,5 @@ $lng['Power'] = 'Power';
 $lng['Status'] = 'Status';
 $lng['at'] = 'at';
 $lng['Back'] = 'Back';
+$lng['AverageChargingPower'] = 'Average Charging Power';
 ?>
