@@ -13,7 +13,7 @@ Unofficial PHP client for the Renault Zoe. It works even with the Renault Megane
 * When you activate the database function the script will create "database.csv" as database file for all data records. You can import this file into Microsoft Excel, for example. For saving your car's data regulary you can run the script periodically, for example with cron.
 * If it wasn't possible to receive new data from Renault you will see a notice together with cached data.
 * You can activate two simple mail notifications when running the script periodically: When 1) a specified battery level is reached and/or 2) charging is finished. You can even execute commands when these events are triggered.
-* When the battery level above is reached you can also activate the schedule mode to stop charging.
+* When the battery level above is reached you can also activate the schedule mode to stop charging. To prepare for this, you need to set a charging schedule in the car. Place it outside of your typical charging times. For example: If you don't usually charge at night, create a charging schedule for 04:00 to 04:30.
 * When you call the script periodically using "index.php?cron" or "php index.php cron" you can set how often the Renault API is called (charging/not charging), regardless how often the script itself is called.
 * When you call the script periodically you can also submit live data to ABRP. Just add your ABRP generic token and car model in the config.php.
 * Thanks to @ToKen for the openweathermap.org integration for Ph2-Zoes! If you want to use this feature you need an API key from openweathermap.org.
