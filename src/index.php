@@ -86,7 +86,7 @@ if ($timestamp_now < $s) $update_ok = FALSE;
 else $update_ok = TRUE;
 
 //Retrieve new Gigya token if the date has changed since last request
-if (empty($session[1]) || $session[0] !== $date_today) {
+if (empty($session[1]) || $session[0] !== $date_today || empty($session[2])) {
   //Login Gigya
   $update_ok = TRUE;
   $postData = array(
@@ -122,22 +122,22 @@ if (empty($session[1]) || $session[0] !== $date_today) {
   $responseData = json_decode($response, TRUE);
   $session[1] = $responseData['id_token'];
   $session[0] = $date_today;
-}
 
-//Request Renault account id if not cached
-if (empty($session[2])) {
-  //Request Kamereon account id
-  $postData = array(
-    'apikey: '.$kamereon_api,
-    'x-gigya-id_token: '.$session[1],
-  );
-  $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/persons/'.$personId.'?country='.$country);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-  $response = curl_exec($ch);
-  if ($response === FALSE) die(curl_error($ch));
-  $responseData = json_decode($response, TRUE);
-  $session[2] = $responseData['accounts'][0]['accountId'];
+  //Request Renault account id if not cached
+  if (empty($session[2])) {
+    //Request Kamereon account id
+    $postData = array(
+      'apikey: '.$kamereon_api,
+      'x-gigya-id_token: '.$session[1],
+    );
+    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/persons/'.$personId.'?country='.$country);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
+    $response = curl_exec($ch);
+    if ($response === FALSE) die(curl_error($ch));
+    $responseData = json_decode($response, TRUE);
+    $session[2] = $responseData['accounts'][0]['accountId'];
+  }
 }
 
 //Evaluate parameter "acnow" for preconditioning
