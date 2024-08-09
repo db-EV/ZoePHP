@@ -67,12 +67,14 @@ if ($response === FALSE) die(curl_error($ch));
 $responseData = json_decode($response, TRUE);
 $data = array();
 if (isset($responseData['data']['attributes']['charges'])) $data = $responseData['data']['attributes']['charges'];
-if ($zoeph == 2) $data = array_reverse($data);
+usort($data, function($a, $b) {
+    return $b['chargeStartDate'] <=> $a['chargeStartDate'];
+});
 
 //Output
 echo '<HTML>'."\n".'<HEAD>'."\n".'<LINK REL="stylesheet" HREF="stylesheet.css">'."\n".'<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">'."\n".'<TITLE>'.$zoename.'</TITLE>'."\n".'</HEAD>'."\n".'<BODY>'."\n".'<DIV ID="container">'."\n".'<MAIN>'."\n".'<ARTICLE>'."\n".'<TABLE>'."\n".'<TR ALIGN="left"><TH>'.$zoename.'</TH></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
 for ($i = 0; $i < count($data); $i++) {
-  if (!empty($data[$i]['chargeStartDate']) && !empty($data[$i]['chargeEndDate'])) {
+  if (!empty($data[$i]['chargeStartDate']) && !empty($data[$i]['chargeEndDate']) && !empty($data[$i]['chargeEnergyRecovered'])) {
     $s = date_create_from_format(DATE_ISO8601, $data[$i]['chargeStartDate'], timezone_open('UTC'));
     $s = date_timezone_set($s, timezone_open('Europe/Berlin'));
     $sts = $s;
@@ -88,14 +90,8 @@ for ($i = 0; $i < count($data); $i++) {
     $cdm += date_interval_format($cd, '%h') * 60;
     $cdm += date_interval_format($cd, '%i');
     echo '<TR><TD>'.$lng['Start'].':</TD><TD>'.$sd.' '.$st.'</TD></TR>'."\n";
-    if ($zoeph == 1) {
-      echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.$data[$i]['chargeStartBatteryLevel'].' % '.$lng['to'].' '.$data[$i]['chargeEndBatteryLevel'].' % '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
-      $s = $data[$i]['chargeStartInstantaneousPower']/1000;
-      echo '<TR><TD>'.$lng['Power'].':</TD><TD>'.$data[$i]['chargePower'].' ('.$s.' kW)</TD></TR>'."\n";
-    } else {
-      echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'], 2).' kWh '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
-      echo '<TR><TD>'.$lng['AverageChargingPower'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'] * 60 / ($cdm+0.0000001), 2).' kW</TD></TR>'."\n";
-    }
+    echo '<TR><TD>'.$lng['Charging'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'], 2).' kWh '.$lng['in'].' '.$cdm.' '.$lng['minutes'].'</TD></TR>'."\n";
+    if ($cdm != 0) echo '<TR><TD>'.$lng['AverageChargingPower'].':</TD><TD>'.round($data[$i]['chargeEnergyRecovered'] * 60 / ($cdm+0.0000001), 2).' kW</TD></TR>'."\n";
     echo '<TR><TD>'.$lng['Status'].':</TD><TD>'.$data[$i]['chargeEndStatus'].' '.$lng['at'].' '.$ed.' '.$et.'</TD></TR>'."\n".'<TR><TD COLSPAN="2"><HR></TD></TR>'."\n";
   }
 }
