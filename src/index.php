@@ -46,11 +46,10 @@ $timestamp_now = date_format($timestamp_now, 'YmdHi');
  * 10: Charging status
  * 11: Cable status
  * 12: Battery level
- * 13: Battery temperature (Ph1) / battery capacity (Ph2)
  * 14: Range in km
  * 15: Charging time
  * 16: Charging effect
- * 17: Outside temperature (Ph1) / GPS-Latitude (Ph2)
+ * 17: GPS-Latitude (Ph2)
  * 18: GPS-Longitude (Ph2)
  * 19: GPS date (Ph2, d.m.Y)
  * 20: GPS time (Ph2, H:i)
@@ -216,8 +215,6 @@ if ($update_ok === TRUE) {
     $session[10] = $responseData['data']['attributes']['chargingStatus'];
     $session[11] = $responseData['data']['attributes']['plugStatus'];
     $session[12] = $responseData['data']['attributes']['batteryLevel'];
-    if (($zoeph == 1)) $session[13] = @$responseData['data']['attributes']['batteryTemperature'];
-    else $session[13] = $responseData['data']['attributes']['batteryAvailableEnergy'];
     $session[14] = $responseData['data']['attributes']['batteryAutonomy'];
     $session[15] = @$responseData['data']['attributes']['chargingRemainingTime'];
     $s = @$responseData['data']['attributes']['chargingInstantaneousPower'];
@@ -257,23 +254,6 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
   $s = $responseData['data']['attributes']['chargeMode'];
   if (empty($s)) $session[24] = 'n/a';
   else $session[24] = $s;
-
-  //Request outside temperature (only Ph1)
-  if ($zoeph == 1) {
-    $postData = array(
-      'apikey: '.$kamereon_api,
-      'x-gigya-id_token: '.$session[1]
-    );
-    $ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/hvac-status?country='.$country);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-    $response = curl_exec($ch);
-    if ($response === FALSE) die(curl_error($ch));
-    $responseData = json_decode($response, TRUE);
-    $s = $responseData['data']['attributes']['externalTemperature'];
-    if (empty($s) && $s != '0.0') $update_sucess = FALSE;
-    else $session[17] = $s;
-  }
 
   //Request GPS position (only Ph2)
   if ($zoeph == 2) {
@@ -351,9 +331,9 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
       if ($zoeph == 1) file_put_contents('database.csv', 'Date;Time;Mileage;Outside temperature;Battery temperature;Battery level;Range;Cable status;Charging status;Charging speed;Remaining charging time;Charging schedule'."\n");
       else file_put_contents('database.csv', 'Date;Time;Mileage;Battery level;Battery capacity;Range;Cable status;Charging status;Charging speed;Remaining charging time;GPS Latitude;GPS Longitude;GPS date;GPS time;Outside temperature;Weather condition;Charging schedule'."\n");
     }
-    if ($zoeph == 1) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[17].';'.$session[13].';'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
-    elseif ($zoeph == 2) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
-    else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';'.$session[13].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';;;;;;;'.$session[24]."\n", FILE_APPEND);
+    if ($zoeph == 1) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';;;'.$session[12].';'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[24]."\n", FILE_APPEND);
+    elseif ($zoeph == 2) file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';;'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';'.$session[17].';'.$session[18].';'.$session[19].';'.$session[20].';'.$session[22].';'.$session[23].';'.$session[24]."\n", FILE_APPEND);
+    else file_put_contents('database.csv', $session[8].';'.$session[9].';'.$session[7].';'.$session[12].';;'.$session[14].';'.$session[11].';'.$session[10].';'.$session[16].';'.$session[15].';;;;;;;'.$session[24]."\n", FILE_APPEND);
   }
 
   //Send data to ABRP if configured
@@ -407,10 +387,8 @@ if ($cmd_cron === TRUE) {
   }
   echo '</TD></TR>'."\n".'<TR><TD>'.$lng['Battery level'].':</TD><TD>'.$session[12].' %</TD></TR>'."\n";
   if ($mail_bl === 'Y' || $cmon_bl === 'Y' || !empty($exec_bl)) echo '<TR><TD>'.$lng['Action at battery level'].':</TD><TD><INPUT TYPE="number" NAME="bl" VALUE="'.$session[21].'" MIN="1" MAX="99"><INPUT TYPE="submit" VALUE="%"></TD></TR>'."\n";
-  if ($zoeph == 2) echo '<TR><TD>'.$lng['Battery capacity'].':</TD><TD>'.$session[13].' kWh</TD></TR>'."\n";
   echo '<TR><TD>'.$lng['Range'].':</TD><TD>'.$session[14].' km</TD></TR>'."\n";
-  if ($zoeph == 1) echo '<TR><TD>'.$lng['Battery temperature'].':</TD><TD>'.$session[13].' &deg;C</TD></TR>'."\n".'<TR><TD>'.$lng['Outside temperature'].':</TD><TD>'.$session[17].' &deg;C</TD></TR>'."\n";
-  elseif ($zoeph == 2 && $weather_api_key != '') echo '<TR><TD>'.$lng['Outside temperature'].':</TD><TD>'.$session[22].' &deg;C ('.htmlentities($session[23]).')</TD></TR>'."\n";
+  if ($zoeph == 2 && $weather_api_key != '') echo '<TR><TD>'.$lng['Outside temperature'].':</TD><TD>'.$session[22].' &deg;C ('.htmlentities($session[23]).')</TD></TR>'."\n";
   echo '<TR><TD>'.$lng['Status update'].':</TD><TD>'.$session[8].' '.$session[9].'</TD></TR>'."\n";
   if ($zoeph == 2) {
     echo '<TR><TD>'.$lng['Car position'].':</TD><TD>';
@@ -420,7 +398,7 @@ if ($cmd_cron === TRUE) {
   }
   echo '<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?acnow">'.$lng['Start preconditioning'].'</A></TD></TR>'."\n";
   if ($hide_cm !== 'Y') echo '<TR><TD COLSPAN="2">'.$lng['Charging schedule'].': <A HREF="'.$requesturi.'?cmon">'.$lng['on'].'</A> | <A HREF="'.$requesturi.'?cmoff">'.$lng['off'].'</A></TD></TR>'."\n".'<TR><TD COLSPAN="2"><A HREF="'.$requesturi.'?chargenow">'.$lng['Start charging'].'</A></TD></TR>'."\n";
-  echo '<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng['Charging history'].'</A></TD></TR>'."\n";
+  if ($zoeph == 2) echo '<TR><TD COLSPAN="2"><A HREF="history.php">'.$lng['Charging history'].'</A></TD></TR>'."\n";
   echo '</TABLE>'."\n".'</ARTICLE>'."\n";
   if ($mail_bl === 'Y') echo '</FORM>'."\n";
   echo '</MAIN>'."\n".'</DIV>'."\n".'</BODY>'."\n".'</HTML>';
