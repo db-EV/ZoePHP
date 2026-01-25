@@ -251,6 +251,19 @@ if (isset($md5) && $md5 != $session[3] && $update_sucess === TRUE) {
   $response = curl_exec($ch);
   if ($response === FALSE) die(curl_error($ch));
   $responseData = json_decode($response, TRUE);
+  if (isset($responseData['data']['attributes'])) {
+    $attr = $responseData['data']['attributes'];
+    
+    $s = $attr['chargeMode'] ?? 'unknown';
+    
+    // Fix for line 270: Ensure the date string isn't null
+    $rawDate = $attr['timestamp'] ?? null; 
+    $date = $rawDate ? date_create_from_format('Y-m-d', $rawDate) : null;
+} else {
+    // Handle the error state (API down, no data, etc.)
+    $s = 'error';
+    $date = null;
+}
   $s = $responseData['data']['attributes']['chargeMode'];
   if (empty($s)) $session[24] = 'n/a';
   else $session[24] = $s;
