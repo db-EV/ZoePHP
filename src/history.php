@@ -7,6 +7,11 @@ require __DIR__ . '/api-keys.php';
 require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
 
+// Validate country against known values before using it in a file path
+if (!in_array($country, ['DE', 'AT', 'IT', 'SE', 'GB'], true)) {
+    $country = 'GB';
+}
+
 $lngFile = __DIR__ . '/lng/' . $country . '.php';
 if (!file_exists($lngFile)) {
     $lngFile = __DIR__ . '/lng/EN.php';

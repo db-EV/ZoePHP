@@ -11,7 +11,6 @@ header('Content-Type: text/plain; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
 $gigya_api = resolveGigyaKey($country, $gigya_keys, $gigya_keys['GB']);
-echo "gigya-api-key: {$gigya_api}\n\n";
 
 $sessionPath = __DIR__ . '/session';
 $session     = sessionLoad($sessionPath);

@@ -9,6 +9,11 @@ require __DIR__ . '/api-keys.php';
 require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
 
+// Validate country against known values before using it in a file path
+if (!in_array($country, ['DE', 'AT', 'IT', 'SE', 'GB'], true)) {
+    $country = 'GB';
+}
+
 // Load language file
 $lngFile = __DIR__ . '/lng/' . $country . '.php';
 if (!file_exists($lngFile)) {
@@ -62,15 +67,16 @@ if (empty($session['csrf_token'])) {
 $csrfToken = $session['csrf_token'];
 
 // Update battery level notification threshold from POST (with CSRF check)
-if (isset($_POST['bl']) && is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
+$blValue = filter_var($_POST['bl'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 99]]);
+if ($blValue !== false) {
     $postedToken = $_POST['csrf_token'] ?? '';
     if (!hash_equals($csrfToken, $postedToken)) {
         // CSRF validation failed — ignore POST
     } else {
-        if ($_POST['bl'] > $session['notify_bl']) {
+        if ($blValue > $session['notify_bl']) {
             $session['bl_action_done'] = false;
         }
-        $session['notify_bl'] = (int) $_POST['bl'];
+        $session['notify_bl'] = $blValue;
     }
 }
 
@@ -131,8 +137,8 @@ try {
     if ($cmd['cron']) {
         exit('AUTH ERROR: ' . $e->getMessage());
     }
-    // For web: continue with cached data, show error in notices
-    $authError = $e->getMessage();
+    // For web: continue with cached data, show generic error
+    $authError = $lng['No new data'];
 }
 
 // Shortcuts
@@ -410,7 +416,7 @@ if ($cmd['cron']) {
 
 // ─── Save Session ───────────────────────────────────────────────────
 
-if ($updateOk || $cmd['cron'] || $cmdSent || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
+if ($updateOk || $cmd['cron'] || $cmdSent || $blValue !== false) {
     $session['data_hash']    = $md5;
     $session['last_request'] = $timestampNow;
     sessionSave($sessionPath, $session);
