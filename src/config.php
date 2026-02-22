@@ -1,78 +1,69 @@
 <?php
-//Name for your Renault Zoe/MeganE (shows as heading)
+/**
+ * Configuration for Renault EV Dashboard
+ * 
+ * Edit this file to match your vehicle and preferences.
+ */
+
+// Display name (shown as heading)
 $zoename = 'Renault EV';
 
-//Your Renault model:
-//1 for Zoe Ph1
-//2 for Zoe Ph2 and MeganE
+// Renault model: 1 = Zoe Ph1, 2 = Zoe Ph2 / MeganE
 $zoeph = 1;
 
-//Login to My Renault
+// My Renault login credentials
 $username = 'your@mailadress.com';
 $password = 'My_password';
 
-//VIN of your Renault
+// Vehicle Identification Number
 $vin = 'VF1...';
 
-//Save data in database.csv: Y for yes or N for no
-$save_in_db = 'N';
-
-//If battery level is reached:
-//Send mail: Y for yes or N for no
-$mail_bl = 'N';
-//Execute command, e.g. 'bash hello.sh'
-$exec_bl = '';
-//Activate charging schedule to stop charging: Y for yes or N for no
-$cmon_bl = 'N';
-
-//If charging is finished:
-//Send mail: Y for yes or N for no
-$mail_csf = 'N';
-//Execute command, e.g. 'bash hello.sh'
-$exec_csf = '';
-
-//Hide charging schedule info and commands: Y for yes or N for no
-$hide_cm = 'N';
-
-//Using cron: Request index.php?cron or php ../index.php cron
-//Minimum time interval in minutes between two requests if the car isn't charging
-$cron_ncs = 60;
-//Minimum time interval in minutes between two requests if the car charging
-$cron_acs = 15;
-
-//Use Google Maps or OpenStreetMap for Ph2
-//'google' for Google Maps or 'osm' for OpenStreetMap
-$map_provider = 'google';
-
-//openweathermap.org API key for requesting weather data (only Ph2)
-//More information: https://openweathermap.org/appid
-$weather_api_key = '';
-
-//Registration country of your Renault
-//Deutschland: DE
-//Österreich: AT
-//Italia: IT
-//Sverige: SE
-//United Kingdom: GB
+// Registration country: DE, AT, IT, SE, GB
 $country = 'GB';
 
-//ABRP Generic Token
-//More information: https://abetterrouteplanner.com/
+// Timezone mapping per country
+$timezones = [
+    'DE' => 'Europe/Berlin',
+    'AT' => 'Europe/Vienna',
+    'IT' => 'Europe/Rome',
+    'SE' => 'Europe/Stockholm',
+    'GB' => 'Europe/London',
+];
+$timezone = $timezones[$country] ?? 'Europe/London';
+
+// Save data in database.csv: true / false
+$save_in_db = false;
+
+// Notifications when battery level is reached
+$mail_bl = false;       // Send mail
+$exec_bl = '';          // Execute command, e.g. 'bash hello.sh'
+$cmon_bl = false;       // Activate charging schedule to stop charging
+
+// Notifications when charging is finished
+$mail_csf = false;      // Send mail
+$exec_csf = '';         // Execute command
+
+// Hide charging schedule info and commands
+$hide_cm = false;
+
+// Cron settings (interval in minutes)
+$cron_ncs = 60;         // Interval when NOT charging
+$cron_acs = 15;         // Interval when charging
+
+// Map provider for Ph2: 'google' or 'osm'
+$map_provider = 'google';
+
+// OpenWeatherMap API key (Ph2 only)
+// See: https://openweathermap.org/appid
+$weather_api_key = '';
+
+// ABRP integration
+// See: https://abetterrouteplanner.com/
 $abrp_token = '';
-//ABRP model
-//Ph1
-//Zoe 22 kWh Q210: 'renault:zoe:q210:22:other'
-//Zoe 22 kWh R240: 'renault:zoe:r240:22:other'
-//Zoe 40 Q90: 'renault:zoe:q90:40:other'
-//Zoe 40 R110: 'renault:zoe:r110:40:other'
-//Zoe 40 R90: 'renault:zoe:r90:40:other'
-//Ph2
-//Zoe 40 R110: 'renault:zoe:20:40:r110:noccs'
-//Zoe 40 R110 with CCS: 'renault:zoe:20:40:r110'
-//Zoe 50 R110: 'renault:zoe:20:52:r110'
-//Zoe 50 R135: 'renault:zoe:20:52:r135'
-//MeganE EV40: 'renault:megane:22:40'
-//MeganE EV60: 'renault:megane:22:60'
-//
 $abrp_model = '';
-?>
+// ABRP model identifiers:
+// Ph1: renault:zoe:q210:22:other, renault:zoe:r240:22:other,
+//       renault:zoe:q90:40:other, renault:zoe:r110:40:other, renault:zoe:r90:40:other
+// Ph2: renault:zoe:20:40:r110:noccs, renault:zoe:20:40:r110,
+//       renault:zoe:20:52:r110, renault:zoe:20:52:r135
+// MeganE: renault:megane:22:40, renault:megane:22:60
