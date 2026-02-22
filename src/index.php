@@ -252,41 +252,39 @@ if ($md5 !== $session['data_hash'] && $updateSuccess) {
     } catch (RuntimeException $e) {
         // Additional data fetch failed
     }
-}
 
-// ─── Fetch GPS and Weather (Ph2, on every update) ───────────────────
-
-if ($updateOk && $zoeph == 2 && !empty($accountId)) {
-    // GPS
-    try {
-        $locationData = fetchLocation($accountId, $vin, $kamereon_api, $token, $country);
-        $locAttrs = $locationData['data']['attributes'] ?? [];
-        if (!empty($locAttrs['lastUpdateTime'])) {
-            $gpsDt = parseApiTimestamp($locAttrs['lastUpdateTime'], $timezone);
-            if ($gpsDt) {
-                $session['gps_lat']  = (string) ($locAttrs['gpsLatitude'] ?? '');
-                $session['gps_lon']  = (string) ($locAttrs['gpsLongitude'] ?? '');
-                $session['gps_date'] = $gpsDt->format('d.m.Y');
-                $session['gps_time'] = $gpsDt->format('H:i');
-            }
-        }
-    } catch (RuntimeException $e) {
-        // GPS unavailable
-    }
-
-    // Weather (requires API key and GPS data)
-    if ($weather_api_key !== '' && !empty($session['gps_lat'])) {
+    // GPS (Ph2 only)
+    if ($zoeph == 2 && !empty($accountId)) {
         try {
-            $weatherData = fetchWeather(
-                $session['gps_lat'], $session['gps_lon'],
-                (string) ($weatherApiDt ?? time()),
-                $weather_api_lng ?? strtolower($country),
-                $weather_api_key
-            );
-            $session['temperature'] = $weatherData['current']['temp'] ?? '';
-            $session['weather']     = $weatherData['current']['weather'][0]['description'] ?? '';
+            $locationData = fetchLocation($accountId, $vin, $kamereon_api, $token, $country);
+            $locAttrs = $locationData['data']['attributes'] ?? [];
+            if (!empty($locAttrs['lastUpdateTime'])) {
+                $gpsDt = parseApiTimestamp($locAttrs['lastUpdateTime'], $timezone);
+                if ($gpsDt) {
+                    $session['gps_lat']  = (string) ($locAttrs['gpsLatitude'] ?? '');
+                    $session['gps_lon']  = (string) ($locAttrs['gpsLongitude'] ?? '');
+                    $session['gps_date'] = $gpsDt->format('d.m.Y');
+                    $session['gps_time'] = $gpsDt->format('H:i');
+                }
+            }
         } catch (RuntimeException $e) {
-            // Weather unavailable
+            // GPS unavailable
+        }
+
+        // Weather (requires API key and GPS data)
+        if ($weather_api_key !== '' && !empty($session['gps_lat'])) {
+            try {
+                $weatherData = fetchWeather(
+                    $session['gps_lat'], $session['gps_lon'],
+                    (string) ($weatherApiDt ?? time()),
+                    $weather_api_lng ?? strtolower($country),
+                    $weather_api_key
+                );
+                $session['temperature'] = $weatherData['current']['temp'] ?? '';
+                $session['weather']     = $weatherData['current']['weather'][0]['description'] ?? '';
+            } catch (RuntimeException $e) {
+                // Weather unavailable
+            }
         }
     }
 }
