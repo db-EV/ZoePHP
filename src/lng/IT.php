@@ -5,6 +5,7 @@ $lng['Preconditioning requested.'] = 'Richiesta precondizionamento inviata.';
 $lng['Instant charging requested.'] = 'Richiesta avvio ricarica inviata.';
 $lng['Activation of the charging schedule requested.'] = 'Richiesta attivazione ricarica programmata inviata.';
 $lng['Deactivation of the charging schedule requested.'] = 'Richiesta disattivazione ricarica programmata inviata.';
+$lng['Command rate limited.'] = 'Comando già inviato di recente — attendere prima di inviarlo nuovamente.';
 $lng['No new data'] = 'Nessun dato ricevuto.';
 $lng['Mileage'] = 'Chilometri percorsi';
 $lng['Connected'] = 'Connesso';

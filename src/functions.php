@@ -37,6 +37,12 @@ function sessionDefaults(): array
         'weather'          => '',
         'charge_mode'      => '',
         'csrf_token'       => '',
+        'last_cmd'         => [
+            'acnow'     => 0,
+            'chargenow' => 0,
+            'cmon'      => 0,
+            'cmoff'     => 0,
+        ],
     ];
 }
 
@@ -59,15 +65,38 @@ function sessionLoad(string $path): array
 
     $session = array_merge($defaults, $decoded);
 
-    // Ensure no null values override string defaults — prevents
+    // Merge nested 'last_cmd' so new commands get default value 0
+    if (!is_array($session['last_cmd'])) {
+        $session['last_cmd'] = $defaults['last_cmd'];
+    } else {
+        $session['last_cmd'] = array_merge($defaults['last_cmd'], $session['last_cmd']);
+    }
+
+    // Ensure no null values override scalar defaults — prevents
     // htmlspecialchars(null) TypeError in PHP 8.1+
     foreach ($defaults as $key => $default) {
-        if ($session[$key] === null) {
+        if (!is_array($default) && $session[$key] === null) {
             $session[$key] = $default;
         }
     }
 
     return $session;
+}
+
+/**
+ * Check whether a command may be sent based on its own cooldown timer.
+ *
+ * @param array  $session       Current session data
+ * @param string $cmd           Command key (e.g. 'acnow')
+ * @param int    $cooldownSec   Minimum seconds between identical commands
+ */
+function cmdAllowed(array $session, string $cmd, int $cooldownSec): bool
+{
+    $ts = (int) ($session['last_cmd'][$cmd] ?? 0);
+    if ($ts === 0) {
+        return true;
+    }
+    return (time() - $ts) >= $cooldownSec;
 }
 
 /**

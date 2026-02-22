@@ -141,25 +141,51 @@ $token     = $session['jwt_token'];
 
 // ─── Execute Commands ───────────────────────────────────────────────
 
-$notices = [];
+$notices   = [];
+$cmdSent   = false;
+$cmdCooldownSec = ($cmd_cooldown ?? 5) * 60;
 
 try {
-    if ($cmd['acnow'] && $updateOk && !empty($accountId)) {
-        sendHvacStart($accountId, $vin, $kamereon_api, $token, $country);
-        $notices[] = $lng['Preconditioning requested.'];
+    if ($cmd['acnow'] && !empty($accountId)) {
+        if (cmdAllowed($session, 'acnow', $cmdCooldownSec)) {
+            sendHvacStart($accountId, $vin, $kamereon_api, $token, $country);
+            $notices[] = $lng['Preconditioning requested.'];
+            $session['last_cmd']['acnow'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     }
 
-    if ($cmd['chargenow'] && $updateOk && !empty($accountId)) {
-        sendChargingStart($accountId, $vin, $kamereon_api, $token, $country);
-        $notices[] = $lng['Instant charging requested.'];
+    if ($cmd['chargenow'] && !empty($accountId)) {
+        if (cmdAllowed($session, 'chargenow', $cmdCooldownSec)) {
+            sendChargingStart($accountId, $vin, $kamereon_api, $token, $country);
+            $notices[] = $lng['Instant charging requested.'];
+            $session['last_cmd']['chargenow'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     }
 
-    if ($cmd['cmon'] && $updateOk && !empty($accountId)) {
-        sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, true);
-        $notices[] = $lng['Activation of the charging schedule requested.'];
-    } elseif ($cmd['cmoff'] && $updateOk && !empty($accountId)) {
-        sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, false);
-        $notices[] = $lng['Deactivation of the charging schedule requested.'];
+    if ($cmd['cmon'] && !empty($accountId)) {
+        if (cmdAllowed($session, 'cmon', $cmdCooldownSec)) {
+            sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, true);
+            $notices[] = $lng['Activation of the charging schedule requested.'];
+            $session['last_cmd']['cmon'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
+    } elseif ($cmd['cmoff'] && !empty($accountId)) {
+        if (cmdAllowed($session, 'cmoff', $cmdCooldownSec)) {
+            sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, false);
+            $notices[] = $lng['Deactivation of the charging schedule requested.'];
+            $session['last_cmd']['cmoff'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     }
 } catch (RuntimeException $e) {
     $notices[] = 'Command error: ' . $e->getMessage();
@@ -384,7 +410,7 @@ if ($cmd['cron']) {
 
 // ─── Save Session ───────────────────────────────────────────────────
 
-if ($updateOk || $cmd['cron'] || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
+if ($updateOk || $cmd['cron'] || $cmdSent || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
     $session['data_hash']    = $md5;
     $session['last_request'] = $timestampNow;
     sessionSave($sessionPath, $session);

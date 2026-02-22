@@ -5,6 +5,7 @@ $lng['Preconditioning requested.'] = 'Förklimatisering har begärts.';
 $lng['Instant charging requested.'] = 'Omgående laddning har begärts.';
 $lng['Activation of the charging schedule requested.'] = 'Aktivering av laddningsschemat har begärts.';
 $lng['Deactivation of the charging schedule requested.'] = 'Deaktivering av laddningsschemat har begärts.';
+$lng['Command rate limited.'] = 'Kommandot skickades nyligen — vänta innan du skickar det igen.';
 $lng['No new data'] = 'Nya data kunde inte hämtas.';
 $lng['Mileage'] = 'Miltal';
 $lng['Connected'] = 'Ansluten';
