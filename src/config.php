@@ -50,9 +50,6 @@ $hide_cm = false;
 $cron_ncs = 60;         // Interval when NOT charging
 $cron_acs = 15;         // Interval when charging
 
-// Minimum time in minutes between the same command being sent again
-$cmd_cooldown = 5;
-
 // Map provider for Ph2: 'google' or 'osm'
 $map_provider = 'google';
 

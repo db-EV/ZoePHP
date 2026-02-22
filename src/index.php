@@ -143,7 +143,7 @@ $token     = $session['jwt_token'];
 
 $notices   = [];
 $cmdSent   = false;
-$cmdCooldownSec = ($cmd_cooldown ?? 5) * 60;
+$cmdCooldownSec = 60;
 
 try {
     if ($cmd['acnow'] && !empty($accountId)) {
