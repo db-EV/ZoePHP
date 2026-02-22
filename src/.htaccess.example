@@ -1,0 +1,20 @@
+# .htaccess.example — Beispielkonfiguration für Apache
+#
+# Kopiere diese Datei nach .htaccess und passe sie an:
+#   cp .htaccess.example .htaccess
+#
+# Passwortdatei anlegen (einmalig, außerhalb des Webroots empfohlen):
+#   htpasswd -c /etc/apache2/.htpasswd meinbenutzername
+
+# ─── Zugriffsschutz (HTTP Basic Auth) ───────────────────────────────
+
+AuthType Basic
+AuthName "ZoePHP"
+AuthUserFile /etc/apache2/.htpasswd
+Require valid-user
+
+# ─── Interne Dateien sperren ─────────────────────────────────────────
+
+<FilesMatch "^(session|database\.csv|config\.php|api-keys\.php)$">
+    Require all denied
+</FilesMatch>
