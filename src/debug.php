@@ -1,10 +1,6 @@
 <?php
 /**
  * Renault EV Dashboard — Debug / Raw API Response Viewer
- *
- * WARNING: This file is intended for local/development use only.
- * It must NOT be publicly accessible on a production server.
- * Restrict access via web server configuration (e.g. HTTP Basic Auth).
  */
 session_cache_limiter('nocache');
 require __DIR__ . '/api-keys.php';
