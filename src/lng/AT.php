@@ -1,3 +1,2 @@
 <?php
-require 'lng/DE.php';
-?>
+require __DIR__ . '/DE.php';
