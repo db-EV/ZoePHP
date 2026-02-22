@@ -1,73 +1,42 @@
 <?php
+/**
+ * Renault EV Dashboard — Debug / Raw API Response Viewer
+ */
 session_cache_limiter('nocache');
-require 'api-keys.php';
-require 'config.php';
+require __DIR__ . '/api-keys.php';
+require __DIR__ . '/config.php';
+require __DIR__ . '/functions.php';
+
 header('Content-Type: text/plain; charset=utf-8');
-if (empty(${$country})) $gigya_api = $GB;
-else $gigya_api = ${$country};
-echo 'gigya-api-key: '.$gigya_api."\n\n";
 
-//Request cached login
-$session = file_get_contents('session');
-$session = explode('|', $session);
+$gigya_api = resolveGigyaKey($country, $gigya_keys, $gigya_keys['GB']);
+echo "gigya-api-key: {$gigya_api}\n\n";
 
-//Request battery and charging status from Renault
-$postData = array(
-  'apikey: '.$kamereon_api,
-  'x-gigya-id_token: '.$session[1]
-);
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v2/cars/'.$vin.'/battery-status?country='.$country);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-$response = curl_exec($ch);
-echo 'battery-status: '.$response."\n\n";
+$sessionPath = __DIR__ . '/session';
+$session     = sessionLoad($sessionPath);
 
-//Request mileage
-$postData = array(
-  'apikey: '.$kamereon_api,
-  'x-gigya-id_token: '.$session[1]
-);
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/cockpit?country='.$country);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-$response = curl_exec($ch);
-if ($response === FALSE) die(curl_error($ch));
-echo 'cockpit: '.$response."\n\n";
+$accountId = $session['account_id'];
+$token     = $session['jwt_token'];
 
-//Request chargemode
-$postData = array(
-  'apikey: '.$kamereon_api,
-  'x-gigya-id_token: '.$session[1]
-);
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/charge-mode?country='.$country);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-$response = curl_exec($ch);
-echo 'charge-mode: '.$response."\n\n";
+if (empty($accountId) || empty($token)) {
+    die("Error: No cached session found. Load index.php first to authenticate.\n");
+}
 
-//Request outside temperature
-$postData = array(
-  'apikey: '.$kamereon_api,
-  'x-gigya-id_token: '.$session[1]
-);
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/hvac-status?country='.$country);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-$response = curl_exec($ch);
-if ($response === FALSE) die(curl_error($ch));
-echo 'hvac-status: '.$response."\n\n";
+$endpoints = [
+    'battery-status' => fn() => fetchBatteryStatus($accountId, $vin, $kamereon_api, $token, $country),
+    'cockpit'        => fn() => fetchCockpit($accountId, $vin, $kamereon_api, $token, $country),
+    'charge-mode'    => fn() => fetchChargeMode($accountId, $vin, $kamereon_api, $token, $country),
+    'hvac-status'    => fn() => fetchHvacStatus($accountId, $vin, $kamereon_api, $token, $country),
+    'location'       => fn() => fetchLocation($accountId, $vin, $kamereon_api, $token, $country),
+];
 
-//Request GPS position
-$postData = array(
-  'apikey: '.$kamereon_api,
-  'x-gigya-id_token: '.$session[1]
-);
-$ch = curl_init('https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/'.$session[2].'/kamereon/kca/car-adapter/v1/cars/'.$vin.'/location?country='.$country);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $postData);
-$response = curl_exec($ch);
-if ($response === FALSE) die(curl_error($ch));
-echo 'location: '.$response."\n\n";
-
-curl_close($ch);
-?>
+foreach ($endpoints as $name => $fetcher) {
+    echo "{$name}: ";
+    try {
+        $data = $fetcher();
+        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    } catch (RuntimeException $e) {
+        echo "ERROR — " . $e->getMessage();
+    }
+    echo "\n\n";
+}
