@@ -144,20 +144,20 @@ $token     = $session['jwt_token'];
 $notices = [];
 
 try {
-    if ($cmd['acnow'] && !empty($accountId)) {
+    if ($cmd['acnow'] && $updateOk && !empty($accountId)) {
         sendHvacStart($accountId, $vin, $kamereon_api, $token, $country);
         $notices[] = $lng['Preconditioning requested.'];
     }
 
-    if ($cmd['chargenow'] && !empty($accountId)) {
+    if ($cmd['chargenow'] && $updateOk && !empty($accountId)) {
         sendChargingStart($accountId, $vin, $kamereon_api, $token, $country);
         $notices[] = $lng['Instant charging requested.'];
     }
 
-    if ($cmd['cmon'] && !empty($accountId)) {
+    if ($cmd['cmon'] && $updateOk && !empty($accountId)) {
         sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, true);
         $notices[] = $lng['Activation of the charging schedule requested.'];
-    } elseif ($cmd['cmoff'] && !empty($accountId)) {
+    } elseif ($cmd['cmoff'] && $updateOk && !empty($accountId)) {
         sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, false);
         $notices[] = $lng['Deactivation of the charging schedule requested.'];
     }
