@@ -41,6 +41,10 @@ if ($cmd['cron']) {
     header('Content-Type: text/plain; charset=utf-8');
 } else {
     header('Content-Type: text/html; charset=utf-8');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'none'; img-src 'self' data:; manifest-src 'self'");
 }
 
 // ─── Load Session ───────────────────────────────────────────────────
@@ -51,12 +55,23 @@ $now         = nowStrings();
 $dateToday   = $now['date_md'];
 $timestampNow = $now['timestamp_hi'];
 
-// Update battery level notification threshold from POST
+// Generate CSRF token if not present
+if (empty($session['csrf_token'])) {
+    $session['csrf_token'] = bin2hex(random_bytes(16));
+}
+$csrfToken = $session['csrf_token'];
+
+// Update battery level notification threshold from POST (with CSRF check)
 if (isset($_POST['bl']) && is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
-    if ($_POST['bl'] > $session['notify_bl']) {
-        $session['bl_action_done'] = false;
+    $postedToken = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($csrfToken, $postedToken)) {
+        // CSRF validation failed — ignore POST
+    } else {
+        if ($_POST['bl'] > $session['notify_bl']) {
+            $session['bl_action_done'] = false;
+        }
+        $session['notify_bl'] = (int) $_POST['bl'];
     }
-    $session['notify_bl'] = (int) $_POST['bl'];
 }
 
 // ─── Cron Interval Check ────────────────────────────────────────────
@@ -147,7 +162,7 @@ try {
         $notices[] = $lng['Deactivation of the charging schedule requested.'];
     }
 } catch (RuntimeException $e) {
-    $notices[] = 'Command error: ' . htmlspecialchars($e->getMessage());
+    $notices[] = 'Command error: ' . $e->getMessage();
 }
 
 // ─── Fetch Battery Status ───────────────────────────────────────────
@@ -347,7 +362,7 @@ if ($cmd['cron']) {
         $notices[] = $lng['No new data'];
     }
     if (isset($authError)) {
-        $notices[] = htmlspecialchars($authError);
+        $notices[] = $authError;
     }
 
     // Calculate "ready" time

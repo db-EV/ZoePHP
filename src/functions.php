@@ -36,6 +36,7 @@ function sessionDefaults(): array
         'temperature'      => '',
         'weather'          => '',
         'charge_mode'      => '',
+        'csrf_token'       => '',
     ];
 }
 

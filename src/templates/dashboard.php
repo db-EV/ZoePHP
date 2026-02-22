@@ -11,6 +11,7 @@
 <main>
 <?php if ($mail_bl): ?>
 <form action="<?= htmlspecialchars($requestUri) ?>" method="post" autocomplete="off">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
 <?php endif; ?>
 <article>
 <table>
@@ -20,7 +21,7 @@
     </tr>
 
     <?php foreach ($notices as $notice): ?>
-    <tr><td colspan="2"><?= $notice ?></td></tr>
+    <tr><td colspan="2"><?= htmlspecialchars($notice, ENT_QUOTES, 'UTF-8') ?></td></tr>
     <?php endforeach; ?>
 
     <tr>
@@ -90,7 +91,7 @@
     </tr>
 
     <?php if ($zoeph == 2): ?>
-    <?php $lat = (string) $session['gps_lat']; $lon = (string) $session['gps_lon']; ?>
+    <?php $lat = htmlspecialchars((string) $session['gps_lat'], ENT_QUOTES, 'UTF-8'); $lon = htmlspecialchars((string) $session['gps_lon'], ENT_QUOTES, 'UTF-8'); ?>
     <tr>
         <td><?= $lng['Car position'] ?>:</td>
         <td>

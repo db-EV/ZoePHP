@@ -1,6 +1,10 @@
 <?php
 /**
  * Renault EV Dashboard — Debug / Raw API Response Viewer
+ *
+ * WARNING: This file is intended for local/development use only.
+ * It must NOT be publicly accessible on a production server.
+ * Restrict access via web server configuration (e.g. HTTP Basic Auth).
  */
 session_cache_limiter('nocache');
 require __DIR__ . '/api-keys.php';
@@ -8,9 +12,9 @@ require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
 
 header('Content-Type: text/plain; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
 
 $gigya_api = resolveGigyaKey($country, $gigya_keys, $gigya_keys['GB']);
-echo "gigya-api-key: {$gigya_api}\n\n";
 
 $sessionPath = __DIR__ . '/session';
 $session     = sessionLoad($sessionPath);
