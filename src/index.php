@@ -9,6 +9,11 @@ require __DIR__ . '/api-keys.php';
 require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
 
+// Validate country against known values before using it in a file path
+if (!in_array($country, ['DE', 'AT', 'IT', 'SE', 'GB'], true)) {
+    $country = 'GB';
+}
+
 // Load language file
 $lngFile = __DIR__ . '/lng/' . $country . '.php';
 if (!file_exists($lngFile)) {
@@ -41,6 +46,10 @@ if ($cmd['cron']) {
     header('Content-Type: text/plain; charset=utf-8');
 } else {
     header('Content-Type: text/html; charset=utf-8');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'none'; img-src 'self' data:; manifest-src 'self'");
 }
 
 // ─── Load Session ───────────────────────────────────────────────────
@@ -51,12 +60,24 @@ $now         = nowStrings();
 $dateToday   = $now['date_md'];
 $timestampNow = $now['timestamp_hi'];
 
-// Update battery level notification threshold from POST
-if (isset($_POST['bl']) && is_numeric($_POST['bl']) && $_POST['bl'] >= 1 && $_POST['bl'] <= 99) {
-    if ($_POST['bl'] > $session['notify_bl']) {
-        $session['bl_action_done'] = false;
+// Generate CSRF token if not present
+if (empty($session['csrf_token'])) {
+    $session['csrf_token'] = bin2hex(random_bytes(16));
+}
+$csrfToken = $session['csrf_token'];
+
+// Update battery level notification threshold from POST (with CSRF check)
+$blValue = filter_var($_POST['bl'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 99]]);
+if ($blValue !== false) {
+    $postedToken = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($csrfToken, $postedToken)) {
+        // CSRF validation failed — ignore POST
+    } else {
+        if ($blValue > $session['notify_bl']) {
+            $session['bl_action_done'] = false;
+        }
+        $session['notify_bl'] = $blValue;
     }
-    $session['notify_bl'] = (int) $_POST['bl'];
 }
 
 // ─── Cron Interval Check ────────────────────────────────────────────
@@ -116,8 +137,8 @@ try {
     if ($cmd['cron']) {
         exit('AUTH ERROR: ' . $e->getMessage());
     }
-    // For web: continue with cached data, show error in notices
-    $authError = $e->getMessage();
+    // For web: continue with cached data, show generic error
+    $authError = $lng['No new data'];
 }
 
 // Shortcuts
@@ -126,28 +147,54 @@ $token     = $session['jwt_token'];
 
 // ─── Execute Commands ───────────────────────────────────────────────
 
-$notices = [];
+$notices   = [];
+$cmdSent   = false;
+$cmdCooldownSec = 60;
 
 try {
     if ($cmd['acnow'] && !empty($accountId)) {
-        sendHvacStart($accountId, $vin, $kamereon_api, $token, $country);
-        $notices[] = $lng['Preconditioning requested.'];
+        if (cmdAllowed($session, 'acnow', $cmdCooldownSec)) {
+            sendHvacStart($accountId, $vin, $kamereon_api, $token, $country);
+            $notices[] = $lng['Preconditioning requested.'];
+            $session['last_cmd']['acnow'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     }
 
     if ($cmd['chargenow'] && !empty($accountId)) {
-        sendChargingStart($accountId, $vin, $kamereon_api, $token, $country);
-        $notices[] = $lng['Instant charging requested.'];
+        if (cmdAllowed($session, 'chargenow', $cmdCooldownSec)) {
+            sendChargingStart($accountId, $vin, $kamereon_api, $token, $country);
+            $notices[] = $lng['Instant charging requested.'];
+            $session['last_cmd']['chargenow'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     }
 
     if ($cmd['cmon'] && !empty($accountId)) {
-        sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, true);
-        $notices[] = $lng['Activation of the charging schedule requested.'];
+        if (cmdAllowed($session, 'cmon', $cmdCooldownSec)) {
+            sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, true);
+            $notices[] = $lng['Activation of the charging schedule requested.'];
+            $session['last_cmd']['cmon'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     } elseif ($cmd['cmoff'] && !empty($accountId)) {
-        sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, false);
-        $notices[] = $lng['Deactivation of the charging schedule requested.'];
+        if (cmdAllowed($session, 'cmoff', $cmdCooldownSec)) {
+            sendChargeMode($accountId, $vin, $kamereon_api, $token, $country, false);
+            $notices[] = $lng['Deactivation of the charging schedule requested.'];
+            $session['last_cmd']['cmoff'] = time();
+            $cmdSent = true;
+        } else {
+            $notices[] = $lng['Command rate limited.'];
+        }
     }
 } catch (RuntimeException $e) {
-    $notices[] = 'Command error: ' . htmlspecialchars($e->getMessage());
+    $notices[] = 'Command error: ' . $e->getMessage();
 }
 
 // ─── Fetch Battery Status ───────────────────────────────────────────
@@ -347,7 +394,7 @@ if ($cmd['cron']) {
         $notices[] = $lng['No new data'];
     }
     if (isset($authError)) {
-        $notices[] = htmlspecialchars($authError);
+        $notices[] = $authError;
     }
 
     // Calculate "ready" time
@@ -369,7 +416,7 @@ if ($cmd['cron']) {
 
 // ─── Save Session ───────────────────────────────────────────────────
 
-if ($updateOk || $cmd['cron'] || (isset($_POST['bl']) && is_numeric($_POST['bl']))) {
+if ($updateOk || $cmd['cron'] || $cmdSent || $blValue !== false) {
     $session['data_hash']    = $md5;
     $session['last_request'] = $timestampNow;
     sessionSave($sessionPath, $session);

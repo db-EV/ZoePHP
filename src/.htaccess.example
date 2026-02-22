@@ -1,0 +1,20 @@
+# .htaccess.example — Sample Apache configuration
+#
+# Copy this file to .htaccess and adjust as needed:
+#   cp .htaccess.example .htaccess
+#
+# Create the password file (once, ideally outside the web root):
+#   htpasswd -c /etc/apache2/.htpasswd myusername
+
+# ─── Access protection (HTTP Basic Auth) ────────────────────────────
+
+AuthType Basic
+AuthName "ZoePHP"
+AuthUserFile /etc/apache2/.htpasswd
+Require valid-user
+
+# ─── Block direct access to internal files ───────────────────────────
+
+<FilesMatch "^(session|database\.csv|config\.php|api-keys\.php)$">
+    Require all denied
+</FilesMatch>

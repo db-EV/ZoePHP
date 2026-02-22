@@ -5,6 +5,7 @@ $lng['Preconditioning requested.'] = 'Preconditioning requested.';
 $lng['Instant charging requested.'] = 'Instant charging requested.';
 $lng['Activation of the charging schedule requested.'] = 'Activation of the charging schedule requested.';
 $lng['Deactivation of the charging schedule requested.'] = 'Deactivation of the charging schedule requested.';
+$lng['Command rate limited.'] = 'Command already sent recently — please wait before sending it again.';
 $lng['No new data'] = 'No new data could be received.';
 $lng['Mileage'] = 'Mileage';
 $lng['Connected'] = 'Connected';

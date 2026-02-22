@@ -7,6 +7,11 @@ require __DIR__ . '/api-keys.php';
 require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
 
+// Validate country against known values before using it in a file path
+if (!in_array($country, ['DE', 'AT', 'IT', 'SE', 'GB'], true)) {
+    $country = 'GB';
+}
+
 $lngFile = __DIR__ . '/lng/' . $country . '.php';
 if (!file_exists($lngFile)) {
     $lngFile = __DIR__ . '/lng/EN.php';
@@ -14,6 +19,10 @@ if (!file_exists($lngFile)) {
 require $lngFile;
 
 header('Content-Type: text/html; charset=utf-8');
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: no-referrer');
+header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'none'; img-src 'self' data:; manifest-src 'self'");
 
 $gigya_api   = resolveGigyaKey($country, $gigya_keys, $gigya_keys['GB']);
 $sessionPath = __DIR__ . '/session';
