@@ -21,9 +21,6 @@ if (!file_exists($lngFile)) {
 }
 require $lngFile;
 
-// Resolve Gigya API key
-$gigya_api = resolveGigyaKey($country, $gigya_keys, $gigya_keys['GB']);
-
 // ─── Parse Commands ─────────────────────────────────────────────────
 
 $isCli = PHP_SAPI === 'cli';
