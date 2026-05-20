@@ -24,7 +24,7 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
 header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'none'; img-src 'self' data:; manifest-src 'self'");
 
-$gigya_api   = resolveGigyaKey($country, $gigya_keys, $gigya_keys['GB']);
+$gigya_api   = $gigya_key;
 $sessionPath = __DIR__ . '/session';
 $session     = sessionLoad($sessionPath);
 $now         = nowStrings();
