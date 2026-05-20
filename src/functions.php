@@ -427,14 +427,6 @@ function filePutContentsLocked(string $path, string $content): bool
 }
 
 
-// ─── Gigya API Key Resolution ───────────────────────────────────────
-
-function resolveGigyaKey(string $country, array $keys, string $fallback): string
-{
-    return $keys[$country] ?? $fallback;
-}
-
-
 // ─── Timestamp / Date Helpers ───────────────────────────────────────
 
 /**
