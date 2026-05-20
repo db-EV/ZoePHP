@@ -10,8 +10,6 @@ require __DIR__ . '/functions.php';
 header('Content-Type: text/plain; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-$gigya_api = $gigya_key;
-
 $sessionPath = __DIR__ . '/session';
 $session     = sessionLoad($sessionPath);
 
