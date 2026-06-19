@@ -53,7 +53,6 @@ try {
     usort($rawCharges, fn($a, $b) => ($b['chargeStartDate'] ?? '') <=> ($a['chargeStartDate'] ?? ''));
 
     // Transform into template-friendly format
-    $tz = new DateTimeZone($timezone);
     $charges = [];
 
     foreach ($rawCharges as $entry) {
@@ -61,15 +60,13 @@ try {
             continue;
         }
 
-        try {
-            $startDt = new DateTimeImmutable($entry['chargeStartDate']);
-            $endDt   = new DateTimeImmutable($entry['chargeEndDate']);
-        } catch (\Exception $e) {
+        // Reuse the shared timestamp helper (parses and converts to the
+        // local timezone, returns null on a malformed value).
+        $startDt = parseApiTimestamp($entry['chargeStartDate'], $timezone);
+        $endDt   = parseApiTimestamp($entry['chargeEndDate'], $timezone);
+        if ($startDt === null || $endDt === null) {
             continue;
         }
-
-        $startDt = $startDt->setTimezone($tz);
-        $endDt   = $endDt->setTimezone($tz);
 
         $diffMinutes = (int) (($endDt->getTimestamp() - $startDt->getTimestamp()) / 60);
         $energy      = round($entry['chargeEnergyRecovered'], 2);
