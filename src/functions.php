@@ -112,6 +112,24 @@ function sessionSave(string $path, array $session): bool
 // ─── HTTP / cURL ────────────────────────────────────────────────────
 
 /**
+ * Default cURL timeout options, shared by every HTTP helper below.
+ *
+ * Kept deliberately low: a single page load makes several sequential API
+ * calls (Gigya login, account, battery, weather …), so a generous
+ * per-request timeout could stack up into a minutes-long hang when an
+ * upstream is unresponsive. Adjust here to tune all requests at once.
+ *
+ * @return array<int,int>
+ */
+function httpTimeoutOptions(): array
+{
+    return [
+        CURLOPT_CONNECTTIMEOUT => 8,
+        CURLOPT_TIMEOUT        => 15,
+    ];
+}
+
+/**
  * Perform a GET request to the Kamereon API.
  *
  * @throws RuntimeException on cURL or API errors
@@ -124,6 +142,69 @@ function kamereonGet(string $url, string $apiKey, string $token): array
             'x-gigya-id_token: ' . $token,
         ],
     ]);
+}
+
+/**
+ * Perform several Kamereon GET requests concurrently via curl_multi.
+ *
+ * Unlike kamereonGet() this does not throw: callers degrade gracefully on
+ * missing data, so each request that fails (cURL error or HTTP >= 400)
+ * yields null for its key instead of aborting the whole batch.
+ *
+ * @param array<string,string> $urls   Map of key => request URL
+ * @return array<string,?array>        Map of key => decoded response, or null on failure
+ */
+function kamereonGetMulti(array $urls, string $apiKey, string $token): array
+{
+    $headers = [
+        'apikey: ' . $apiKey,
+        'x-gigya-id_token: ' . $token,
+    ];
+
+    $mh      = curl_multi_init();
+    $handles = [];
+
+    foreach ($urls as $key => $url) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => $headers,
+        ] + httpTimeoutOptions());
+        curl_multi_add_handle($mh, $ch);
+        $handles[$key] = $ch;
+    }
+
+    // Run all transfers concurrently, blocking on activity to avoid a busy loop.
+    do {
+        $status = curl_multi_exec($mh, $running);
+        if ($running) {
+            if (curl_multi_select($mh) === -1) {
+                usleep(1000);
+            }
+        }
+    } while ($running > 0 && $status === CURLM_OK);
+
+    $results = [];
+    foreach ($handles as $key => $ch) {
+        $response = curl_multi_getcontent($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $decoded  = null;
+
+        if (curl_errno($ch) === 0 && $httpCode < 400 && is_string($response) && $response !== '') {
+            $tmp = json_decode($response, true);
+            if (is_array($tmp)) {
+                $decoded = $tmp;
+            }
+        }
+
+        $results[$key] = $decoded;
+        curl_multi_remove_handle($mh, $ch);
+        curl_close($ch);
+    }
+
+    curl_multi_close($mh);
+
+    return $results;
 }
 
 /**
@@ -167,9 +248,7 @@ function curlRequest(string $url, array $options = []): array
     $ch = curl_init($url);
     curl_setopt_array($ch, $options + [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 30,
-        CURLOPT_CONNECTTIMEOUT => 10,
-    ]);
+    ] + httpTimeoutOptions());
 
     $response = curl_exec($ch);
 
@@ -183,7 +262,11 @@ function curlRequest(string $url, array $options = []): array
     curl_close($ch);
 
     if ($httpCode >= 400) {
-        throw new RuntimeException("HTTP {$httpCode} from {$url}");
+        // Keep only the host in the message — the full URL contains the
+        // account ID and VIN, which must not leak into user-facing
+        // notices, cron output, or server logs.
+        $host = parse_url($url, PHP_URL_HOST) ?: 'API';
+        throw new RuntimeException("HTTP {$httpCode} from {$host}");
     }
 
     $decoded = json_decode($response, true);
@@ -393,16 +476,23 @@ function csvAppend(string $path, array $fields, ?array $header = null): bool
         return false;
     }
 
+    // Report the actual outcome: a failed lock (e.g. on a filesystem
+    // without lock support) or a failed write must return false, not
+    // a misleading true.
+    $success = false;
     if (flock($fp, LOCK_EX)) {
+        $success = true;
         if ($writeHeader) {
-            fputcsv($fp, $header, ';');
+            $success = fputcsv($fp, $header, ';') !== false;
         }
-        fputcsv($fp, $fields, ';');
+        if ($success) {
+            $success = fputcsv($fp, $fields, ';') !== false;
+        }
         flock($fp, LOCK_UN);
     }
 
     fclose($fp);
-    return true;
+    return $success;
 }
 
 
@@ -415,15 +505,19 @@ function filePutContentsLocked(string $path, string $content): bool
         return false;
     }
 
+    // Report the actual outcome: a failed lock (e.g. on a filesystem
+    // without lock support) or a failed write must return false, not
+    // a misleading true.
+    $success = false;
     if (flock($fp, LOCK_EX)) {
-        ftruncate($fp, 0);
-        fwrite($fp, $content);
-        fflush($fp);
+        $success = ftruncate($fp, 0)
+            && fwrite($fp, $content) !== false
+            && fflush($fp);
         flock($fp, LOCK_UN);
     }
 
     fclose($fp);
-    return true;
+    return $success;
 }
 
 
