@@ -6,6 +6,7 @@ $lng['Instant charging requested.'] = 'Sofortiges Laden wurde angefordert.';
 $lng['Activation of the charging schedule requested.'] = 'Aktivierung des Ladeplaners wurde angefordert.';
 $lng['Deactivation of the charging schedule requested.'] = 'Deaktivierung des Ladeplaners wurde angefordert.';
 $lng['Command rate limited.'] = 'Befehl wurde kürzlich bereits gesendet — bitte warte, bevor du ihn erneut sendest.';
+$lng['Command could not be completed.'] = 'Der Befehl konnte nicht ausgeführt werden.';
 $lng['No new data'] = 'Es konnten keine neuen Daten abgerufen werden.';
 $lng['Mileage'] = 'Kilometerstand';
 $lng['Connected'] = 'Angeschlossen';
