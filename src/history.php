@@ -2,7 +2,6 @@
 /**
  * Renault EV Dashboard — Charging History
  */
-session_cache_limiter('nocache');
 require __DIR__ . '/api-keys.php';
 require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
@@ -19,6 +18,7 @@ if (!file_exists($lngFile)) {
 require $lngFile;
 
 header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: no-store');
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
