@@ -19,9 +19,9 @@ Key characteristics:
 ZoePHP/
 ├── src/
 │   ├── index.php           # Main entry point and request orchestrator
-│   ├── functions.php       # All helper/utility functions (~463 lines)
+│   ├── functions.php       # All helper/utility functions (~549 lines)
 │   ├── config.php          # User configuration — GITIGNORED, never commit
-│   ├── api-keys.php        # Hardcoded Gigya/Kamereon API keys per country
+│   ├── api-keys.php        # Hardcoded Europe-wide Gigya key and Kamereon API key
 │   ├── debug.php           # Raw API response viewer for troubleshooting
 │   ├── history.php         # Charging history page (Ph2 only)
 │   ├── migration.php       # One-time migration from legacy pipe-format to JSON
@@ -57,7 +57,7 @@ ZoePHP/
 
 ```
 index.php
-  ├── require api-keys.php   → $gigya_keys, $kamereon_api
+  ├── require api-keys.php   → $gigya_api, $kamereon_api
   ├── require config.php     → $username, $password, $vin, $country, $zoeph, …
   ├── require functions.php  → all helper functions
   ├── require lng/$country.php → $lng (localised strings array)
@@ -68,7 +68,7 @@ index.php
   ├── Check rate limits and cron intervals
   ├── Authenticate with Gigya if token expired
   ├── Execute vehicle commands (HVAC, charge, schedule)
-  ├── Fetch vehicle data (battery, mileage, GPS, weather)
+  ├── Fetch vehicle data (battery first; mileage/charge-mode/GPS in parallel; then weather)
   ├── Trigger notifications (email, shell command)
   ├── Persist data (sessionSave, csvAppend)
   └── require templates/dashboard.php  → HTML output (or plain text for cron)
@@ -135,10 +135,11 @@ When testing changes locally, run `php src/index.php cron` and verify the plain-
 - Do not introduce Composer or any third-party packages
 
 ### Security (always enforce)
-- Escape all output with `htmlspecialchars()` before rendering in templates
+- Escape all output with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` before rendering in templates; add `rel="noopener noreferrer"` to any `target="_blank"` link
 - Validate CSRF tokens on every POST request before processing
 - Use `escapeshellarg()` / `escapeshellcmd()` for any shell command; never interpolate user data directly
-- Set all security headers (`Content-Security-Policy`, `X-Frame-Options`, etc.) on every non-cron web response
+- Set all security headers (`Content-Security-Policy`, `X-Frame-Options`, `Cache-Control: no-store`, etc.) on every web response
+- Keep user-facing and cron error messages generic — never echo raw exception text or full request URLs, which can expose the account ID and VIN
 - Enforce command cooldowns via `cmdAllowed()` — do not bypass rate limiting
 
 ### PHP Compatibility
@@ -153,16 +154,18 @@ When testing changes locally, run `php src/index.php cron` and verify the plain-
 |----------|---------|
 | `sessionDefaults(): array` | Returns the canonical session schema with defaults |
 | `sessionLoad(string $path): array` | Loads JSON session file, merges with defaults |
-| `sessionSave(string $path, array $session): void` | Writes session to file with locking |
+| `sessionSave(string $path, array $session): bool` | Writes session to file with locking; returns false on failure |
 | `cmdAllowed(array $session, string $cmd, int $cooldownSec): bool` | Enforces per-command cooldown |
 
 ### HTTP Layer
 | Function | Purpose |
 |----------|---------|
-| `curlRequest(string $url, array $options): array` | Low-level cURL wrapper |
+| `curlRequest(string $url, array $options): array` | Low-level cURL wrapper (applies shared timeouts; callers may override via `$options`) |
 | `kamereonGet(...)` | GET request with Kamereon auth headers |
+| `kamereonGetMulti(array $urls, string $apiKey, string $token): array` | Fetches several Kamereon endpoints concurrently via `curl_multi`; returns `null` per key on failure instead of throwing |
 | `kamereonPost(...)` | POST request with JSON body to Kamereon |
 | `gigyaPost(...)` | Form-encoded POST to Gigya auth |
+| `httpTimeoutOptions(): array` | Shared cURL connect/total timeout options used by every HTTP helper — tune timeouts in this one place |
 
 ### Authentication
 | Function | Purpose |
@@ -180,6 +183,8 @@ When testing changes locally, run `php src/index.php cron` and verify the plain-
 | `fetchLocation(...)` | GPS coordinates (Ph2 only) |
 | `fetchChargingHistory(...)` | Past charging records |
 
+> `index.php` fetches the independent reads — cockpit, charge-mode and (Ph2) location — concurrently through `kamereonGetMulti()`. Battery status runs first because it gates the change-detection hash, and weather runs last because it depends on the GPS coordinates. The single-fetch `fetch*` functions above are still used directly by `debug.php`.
+
 ### Vehicle Commands (write)
 | Function | Purpose |
 |----------|---------|
@@ -192,11 +197,10 @@ When testing changes locally, run `php src/index.php cron` and verify the plain-
 |----------|---------|
 | `fetchWeather(...)` | OpenWeatherMap lookup (Ph2 only) |
 | `execSafe(string $command, string $message): void` | Safe shell execution for notifications |
-| `csvAppend(string $path, array $fields, array $header): void` | Append row to CSV with locking |
-| `filePutContentsLocked(string $path, string $content): bool` | Atomic file write |
-| `resolveGigyaKey(string $country, array $keys, string $fallback): string` | Country-to-API-key lookup |
-| `parseApiTimestamp(string $ts, string $tz): array` | ISO 8601 → local date/time |
-| `nowStrings(string $tz): array` | Current date/time strings |
+| `csvAppend(string $path, array $fields, ?array $header = null): bool` | Append row to CSV with locking; returns false on lock/write failure |
+| `filePutContentsLocked(string $path, string $content): bool` | Atomic, locked file write; returns false on lock/write failure |
+| `parseApiTimestamp(string $isoString, string $timezone): ?DateTimeImmutable` | ISO 8601 → local DateTimeImmutable (or null on failure) |
+| `nowStrings(): array` | Current date/time strings (`date_md`, `timestamp_hi`); uses server timezone |
 
 ## Configuration Variables (`src/config.php`)
 
@@ -256,7 +260,7 @@ Delete `src/session` after every script update to prevent stale data issues.
 
 | Service | Purpose | Authentication |
 |---------|---------|----------------|
-| Gigya (`accounts.eu1.gigya.com`) | Authentication — login and JWT retrieval | API key per country |
+| Gigya (`accounts.eu1.gigya.com`) | Authentication — login and JWT retrieval | Single Europe-wide API key (`$gigya_api`) |
 | Kamereon (`api-wired-prod-1-euw1.wrd-aws.com`) | Vehicle data read/write | JWT token + API key |
 | OpenWeatherMap | Current weather at GPS location (Ph2) | API key in config |
 | ABRP | Push live vehicle data for route planning | Token in config |
