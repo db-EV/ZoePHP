@@ -6,6 +6,7 @@ $lng['Instant charging requested.'] = 'Richiesta avvio ricarica inviata.';
 $lng['Activation of the charging schedule requested.'] = 'Richiesta attivazione ricarica programmata inviata.';
 $lng['Deactivation of the charging schedule requested.'] = 'Richiesta disattivazione ricarica programmata inviata.';
 $lng['Command rate limited.'] = 'Comando già inviato di recente — attendere prima di inviarlo nuovamente.';
+$lng['Command could not be completed.'] = 'Impossibile completare il comando.';
 $lng['No new data'] = 'Nessun dato ricevuto.';
 $lng['Mileage'] = 'Chilometri percorsi';
 $lng['Connected'] = 'Connesso';
