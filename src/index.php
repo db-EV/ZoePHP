@@ -4,7 +4,6 @@
  *
  * Handles authentication, data retrieval, commands, and output.
  */
-session_cache_limiter('nocache');
 require __DIR__ . '/api-keys.php';
 require __DIR__ . '/config.php';
 require __DIR__ . '/functions.php';
@@ -41,8 +40,10 @@ if ($cmd['cmon']) {
 
 if ($cmd['cron']) {
     header('Content-Type: text/plain; charset=utf-8');
+    header('Cache-Control: no-store');
 } else {
     header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-store');
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: no-referrer');
@@ -132,7 +133,9 @@ try {
     }
 } catch (RuntimeException $e) {
     if ($cmd['cron']) {
-        exit('AUTH ERROR: ' . $e->getMessage());
+        // Generic marker only — the exception may reference internal
+        // endpoints or account data, so do not echo its message.
+        exit('AUTH ERROR');
     }
     // For web: continue with cached data, show generic error
     $authError = $lng['No new data'];
@@ -191,7 +194,9 @@ try {
         }
     }
 } catch (RuntimeException $e) {
-    $notices[] = 'Command error: ' . $e->getMessage();
+    // Generic notice only — the exception detail may reference internal
+    // endpoints and must not be exposed to the client.
+    $notices[] = $lng['Command could not be completed.'];
 }
 
 // ─── Fetch Battery Status ───────────────────────────────────────────
@@ -233,42 +238,49 @@ if ($updateOk && !empty($accountId)) {
 // ─── Fetch Additional Data (only when data changed) ─────────────────
 
 if ($md5 !== $session['data_hash'] && $updateSuccess) {
-    try {
-        // Mileage
-        $cockpitData = fetchCockpit($accountId, $vin, $kamereon_api, $token, $country);
-        $mileage = $cockpitData['data']['attributes']['totalMileage'] ?? null;
+    // Cockpit (mileage), charge-mode and — on Ph2 — location are independent
+    // endpoints, so they are fetched concurrently. Weather still runs after
+    // this block because it depends on the GPS coordinates returned here.
+    $multiUrls = [
+        'cockpit'    => kamereonCarUrl($accountId, $vin, 'cockpit', $country),
+        'chargeMode' => kamereonCarUrl($accountId, $vin, 'charge-mode', $country),
+    ];
+    if ($zoeph == 2) {
+        $multiUrls['location'] = kamereonCarUrl($accountId, $vin, 'location', $country);
+    }
+
+    $multi = kamereonGetMulti($multiUrls, $kamereon_api, $token);
+
+    // Mileage — only a successful response that lacks the field marks the
+    // update as incomplete; a failed request leaves the cached value as-is.
+    if (is_array($multi['cockpit'])) {
+        $mileage = $multi['cockpit']['data']['attributes']['totalMileage'] ?? null;
         if ($mileage !== null) {
             $session['mileage'] = $mileage;
         } else {
             $updateSuccess = false;
         }
+    }
 
-        // Charge mode
-        $chargeModeData = fetchChargeMode($accountId, $vin, $kamereon_api, $token, $country);
-        $session['charge_mode'] = $chargeModeData['data']['attributes']['chargeMode'] ?? 'n/a';
-    } catch (RuntimeException $e) {
-        // Additional data fetch failed
+    // Charge mode — keep the previous value if the request failed.
+    if (is_array($multi['chargeMode'])) {
+        $session['charge_mode'] = $multi['chargeMode']['data']['attributes']['chargeMode'] ?? 'n/a';
     }
 
     // GPS (Ph2 only)
-    if ($zoeph == 2 && !empty($accountId)) {
-        try {
-            $locationData = fetchLocation($accountId, $vin, $kamereon_api, $token, $country);
-            $locAttrs = $locationData['data']['attributes'] ?? [];
-            if (!empty($locAttrs['lastUpdateTime'])) {
-                $gpsDt = parseApiTimestamp($locAttrs['lastUpdateTime'], $timezone);
-                if ($gpsDt) {
-                    $session['gps_lat']  = (string) ($locAttrs['gpsLatitude'] ?? '');
-                    $session['gps_lon']  = (string) ($locAttrs['gpsLongitude'] ?? '');
-                    $session['gps_date'] = $gpsDt->format('d.m.Y');
-                    $session['gps_time'] = $gpsDt->format('H:i');
-                }
+    if ($zoeph == 2) {
+        $locAttrs = $multi['location']['data']['attributes'] ?? [];
+        if (!empty($locAttrs['lastUpdateTime'])) {
+            $gpsDt = parseApiTimestamp($locAttrs['lastUpdateTime'], $timezone);
+            if ($gpsDt) {
+                $session['gps_lat']  = (string) ($locAttrs['gpsLatitude'] ?? '');
+                $session['gps_lon']  = (string) ($locAttrs['gpsLongitude'] ?? '');
+                $session['gps_date'] = $gpsDt->format('d.m.Y');
+                $session['gps_time'] = $gpsDt->format('H:i');
             }
-        } catch (RuntimeException $e) {
-            // GPS unavailable
         }
 
-        // Weather (requires API key and GPS data)
+        // Weather (requires API key and GPS data) — sequential, depends on GPS
         if ($weather_api_key !== '' && !empty($session['gps_lat'])) {
             try {
                 $weatherData = fetchWeather(
