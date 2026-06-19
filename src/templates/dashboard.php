@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars($country) ?>">
+<html lang="<?= htmlspecialchars($country, ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <link rel="manifest" href="zoephp.webmanifest">
     <link rel="stylesheet" href="stylesheet.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($zoename) ?></title>
+    <title><?= htmlspecialchars($zoename, ENT_QUOTES, 'UTF-8') ?></title>
 </head>
 <body>
 <div id="container">
 <main>
 <?php if ($mail_bl): ?>
-<form action="<?= htmlspecialchars($requestUri) ?>" method="post" autocomplete="off">
+<form action="<?= htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8') ?>" method="post" autocomplete="off">
 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
 <?php endif; ?>
 <article>
 <table>
     <tr align="left">
-        <th><?= htmlspecialchars($zoename) ?></th>
-        <td><small><a href="<?= htmlspecialchars($requestUri) ?>"><?= $lng['Update'] ?></a></small></td>
+        <th><?= htmlspecialchars($zoename, ENT_QUOTES, 'UTF-8') ?></th>
+        <td><small><a href="<?= htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8') ?>"><?= $lng['Update'] ?></a></small></td>
     </tr>
 
     <?php foreach ($notices as $notice): ?>
@@ -26,7 +26,7 @@
 
     <tr>
         <td><?= $lng['Mileage'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['mileage']) ?> km</td>
+        <td><?= htmlspecialchars((string) $session['mileage'], ENT_QUOTES, 'UTF-8') ?> km</td>
     </tr>
     <tr>
         <td><?= $lng['Connected'] ?>:</td>
@@ -39,12 +39,12 @@
     <?php if ($session['charging_status'] == 1): ?>
     <tr>
         <td><?= $lng['Ready'] ?>:</td>
-        <td><?= htmlspecialchars($readyTime) ?></td>
+        <td><?= htmlspecialchars($readyTime, ENT_QUOTES, 'UTF-8') ?></td>
     </tr>
     <?php if ($zoeph == 1 && $session['charging_power'] > 0): ?>
     <tr>
         <td><?= $lng['Effect'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['charging_power']) ?> kW</td>
+        <td><?= htmlspecialchars((string) $session['charging_power'], ENT_QUOTES, 'UTF-8') ?> kW</td>
     </tr>
     <?php endif; ?>
     <?php endif; ?>
@@ -60,7 +60,7 @@
 
     <tr>
         <td><?= $lng['Battery level'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['battery_level']) ?> %</td>
+        <td><?= htmlspecialchars((string) $session['battery_level'], ENT_QUOTES, 'UTF-8') ?> %</td>
     </tr>
 
     <?php if ($mail_bl || $cmon_bl || !empty($exec_bl)): ?>
@@ -75,19 +75,19 @@
 
     <tr>
         <td><?= $lng['Range'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['range_km']) ?> km</td>
+        <td><?= htmlspecialchars((string) $session['range_km'], ENT_QUOTES, 'UTF-8') ?> km</td>
     </tr>
 
     <?php if ($zoeph == 2 && $weather_api_key !== ''): ?>
     <tr>
         <td><?= $lng['Outside temperature'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['temperature']) ?> &deg;C (<?= htmlspecialchars((string) $session['weather']) ?>)</td>
+        <td><?= htmlspecialchars((string) $session['temperature'], ENT_QUOTES, 'UTF-8') ?> &deg;C (<?= htmlspecialchars((string) $session['weather'], ENT_QUOTES, 'UTF-8') ?>)</td>
     </tr>
     <?php endif; ?>
 
     <tr>
         <td><?= $lng['Status update'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['status_date']) ?> <?= htmlspecialchars((string) $session['status_time']) ?></td>
+        <td><?= htmlspecialchars((string) $session['status_date'], ENT_QUOTES, 'UTF-8') ?> <?= htmlspecialchars((string) $session['status_time'], ENT_QUOTES, 'UTF-8') ?></td>
     </tr>
 
     <?php if ($zoeph == 2): ?>
@@ -96,23 +96,23 @@
         <td><?= $lng['Car position'] ?>:</td>
         <td>
         <?php if ($map_provider === 'osm'): ?>
-            <a href="https://www.openstreetmap.org/?mlat=<?= $lat ?>&amp;mlon=<?= $lon ?>&amp;zoom=17" target="_blank">OpenStreetMap</a>
+            <a href="https://www.openstreetmap.org/?mlat=<?= $lat ?>&amp;mlon=<?= $lon ?>&amp;zoom=17" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
         <?php else: ?>
-            <a href="https://www.google.com/maps/place/<?= $lat ?>,<?= $lon ?>" target="_blank">Google Maps</a>
+            <a href="https://www.google.com/maps/place/<?= $lat ?>,<?= $lon ?>" target="_blank" rel="noopener noreferrer">Google Maps</a>
         <?php endif; ?>
         </td>
     </tr>
     <tr>
         <td><?= $lng['Position update'] ?>:</td>
-        <td><?= htmlspecialchars((string) $session['gps_date']) ?> <?= htmlspecialchars((string) $session['gps_time']) ?></td>
+        <td><?= htmlspecialchars((string) $session['gps_date'], ENT_QUOTES, 'UTF-8') ?> <?= htmlspecialchars((string) $session['gps_time'], ENT_QUOTES, 'UTF-8') ?></td>
     </tr>
     <?php endif; ?>
 
-    <tr><td colspan="2"><a href="<?= htmlspecialchars($requestUri) ?>?acnow"><?= $lng['Start preconditioning'] ?></a></td></tr>
+    <tr><td colspan="2"><a href="<?= htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8') ?>?acnow"><?= $lng['Start preconditioning'] ?></a></td></tr>
 
     <?php if (!$hide_cm): ?>
-    <tr><td colspan="2"><?= $lng['Charging schedule'] ?>: <a href="<?= htmlspecialchars($requestUri) ?>?cmon"><?= $lng['on'] ?></a> | <a href="<?= htmlspecialchars($requestUri) ?>?cmoff"><?= $lng['off'] ?></a></td></tr>
-    <tr><td colspan="2"><a href="<?= htmlspecialchars($requestUri) ?>?chargenow"><?= $lng['Start charging'] ?></a></td></tr>
+    <tr><td colspan="2"><?= $lng['Charging schedule'] ?>: <a href="<?= htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8') ?>?cmon"><?= $lng['on'] ?></a> | <a href="<?= htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8') ?>?cmoff"><?= $lng['off'] ?></a></td></tr>
+    <tr><td colspan="2"><a href="<?= htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8') ?>?chargenow"><?= $lng['Start charging'] ?></a></td></tr>
     <?php endif; ?>
 
     <?php if ($zoeph == 2): ?>
